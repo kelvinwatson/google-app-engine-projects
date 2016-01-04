@@ -1,30 +1,50 @@
 import cgi
+import time
 import webapp2
 from google.appengine.api import users
+
+#Sources:
+#http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/dynamic.html
+#http://www.plus2net.com/javascript_tutorial/clock.php
+
+timeStr=time.strftime('%l:%M%p %Z on %b %d, %Y') #retrieve current time
+
+CLOCK_JAVASCRIPT = """\
+<script type="text/javascript">
+function refreshClock(){
+    var currentTime=new Date();
+    var currentHour=currentTime.getHours();
+    var currentMin=currentTime.getMinutes();
+    var currentSec=currentTime.getSeconds();
+
+}</script>
+"""
+
 
 MAIN_PAGE_HTML = """\
 <html>
     <head><title>Hello Cloud (CS496 Assignment 1)</title></head>
-    <body>
+    <body onload="refreshClock(); setInterval('refreshClock()',1000)">
         <table>
             <tr>
                 <td>CS 496 Assignment 1: Hello Cloud</td>
                 <td>Programmed by Kelvin Watson</td>
             </tr>
         </table>
-        <h4> Welcome. Please feel free to sign the guestbook.</h4>
+        <h4>The current time is: %s</h4>
+        <h4>Please feel free to sign the guestbook.</h4>
         <form action="/sign" method="post">
             <div><textarea name="content" rows="3" cols"60"></textarea></div>
                 <div><input type="submit" value="Sign Guestbook"></div>
         </form>
     </body>
 </html>
-"""
+""" %(timeStr)
 
 #request handler - processes requests and builds responses
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        self.response.write(MAIN_PAGE_HTML) #write HTML form
+        self.response.write(MAIN_PAGE_HTML)
         #Check for active Google account session
         #user = users.get_current_user()
         #if user:
