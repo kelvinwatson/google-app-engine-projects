@@ -23,7 +23,7 @@ MAIN_PAGE_HTML = """\
                 <td style="font-size:0.9em;padding-left:10px">Programmed by Kelvin Watson</td>
             </tr>
         </table>
-        <h4 style="border-bottom:solid thin green">Weather</h4>
+        <h4 style="border-bottom:solid thin green">WEATHER</h4>
         <p>To view the current weather in Oregon, complete the following:
         <form action="/weather" method="post">
             <select name="city">
@@ -79,7 +79,16 @@ class Weather(webapp2.RequestHandler):
         self.html_bottom()
 
     def html_top(self):
-        self.response.write('<html><body>')
+        self.response.write('<html style="font-family:Arial">\
+            <head><title>HELLO CLOUD (CS496 Assignment 1)</title></head>\
+                <body>\
+                <table>\
+                    <tr>\
+                        <th style="font-size:1.3em;border-right:solid thin green; padding-right:10px">CS 496 Assignment 1: Hello Cloud</th>\
+                        <td style="font-size:0.9em;padding-left:10px">Programmed by Kelvin Watson</td>\
+                    </tr>\
+                </table>\
+                <h4 style="border-bottom:solid thin green">WEATHER</h4>')
 
     def html_bottom(self):
         self.response.write('</body></html>')
