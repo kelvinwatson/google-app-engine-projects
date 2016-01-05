@@ -78,24 +78,25 @@ MAIN_PAGE_HEADER_HTML = """\
             <input type="submit" value="Submit">
         </form>
         <p>You can also go to <a href="/weather">hellocloud-1179.appspot.com/weather</a> to get today's weather.</p>
-                <h4 style="border-bottom:solid thin green">GUESTBOOK</h4>\
-                <table width="50%" style="float:left">
-                    <tr>
-                        <td>Please feel free to sign my guestbook
-                        <form action="/guestbook" method="post">
-                            <input type="text" name="nick_name" placeholder="Nickname" style="width:200px" required><br>
-                            <textarea name="content" rows="3" placeholder="Your comment here" style="width:200px" required></textarea><br>
-                            <input type="submit" value="Sign Guestbook">
-                        </form>
-                        </td>
-                    <tr>
-                </table>
-                <table width="50%" style="float:left">
-                    <tr>
-                        <th style="width:36em;border-bottom:solid thin green">Past Guestbook Entries</th>
-                    <tr>"""
+        <h4 style="border-bottom:solid thin green">GUESTBOOK</h4>\
+        <table width="50%" style="float:left">
+            <tr >
+                <td>Please feel free to sign my guestbook
+                <form action="/guestbook" method="post">
+                    <input type="text" name="nick_name" placeholder="Nickname" style="width:200px" required><br>
+                    <textarea name="content" rows="3" placeholder="Your comment here" style="width:200px" required></textarea><br>
+                    <input type="submit" value="Sign Guestbook">
+                </form>
+                <p>You can also go to <a href="/guestbook">hellocloud-1179.appspot.com/guestbook</a> to post and view past entries.</p>
+                </td>
+            <tr>
+        </table>
+        <table width="50%" style="background-color:#9ACD32;float:left;border:solid thin green">
+            <tr>
+                <th style="border-bottom:solid thin green">Past Guestbook Entries</th>
+            <tr>"""
 
-MAIN_PAGE_FOOTER_HTML = """</table></body></html>"""
+MAIN_PAGE_FOOTER_HTML = """</table></body><footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer></html>"""
 
 #request handler - processes requests and builds responses
 class MainPage(webapp2.RequestHandler):
@@ -117,8 +118,8 @@ class MainPage(webapp2.RequestHandler):
                 self.response.write('<tr><td>%s <b>%s</b> wrote:' % (dt, greeting.author.identity))
             else: self.response.write('An anonymous person wrote:')
             self.response.write('<blockquote style="font-style:italic">%s</blockquote></td></tr>' %cgi.escape(greeting.content))
-        sign_query_params = urllib.urlencode({'guestbook_name':guestbook_name})
-        self.response.write(MAIN_PAGE_FOOTER_HTML)
+        #sign_query_params = urllib.urlencode({'guestbook_name':guestbook_name})
+
 
 
 class CatchAll(webapp2.RequestHandler):

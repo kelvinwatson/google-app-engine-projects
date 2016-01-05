@@ -46,6 +46,7 @@ MAIN_PAGE_HTML = """\
             <input type="submit" value="Submit">
         </form>
     </body>
+    <footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer>
 </html>
 """
 

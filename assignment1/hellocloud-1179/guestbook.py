@@ -34,13 +34,13 @@ GUESTBOOK_PAGE_HEADER_HTML = """\
                 </td>
             <tr>
         </table>
-        <table width="50%" style="float:left">
+        <table width="50%" style="background-color:#9ACD32;float:left;border:solid thin green">
             <tr>
                 <th style="width:36em;border-bottom:solid thin green">Past Guestbook Entries</th>
             <tr>"""
 
 
-GUESTBOOK_PAGE_FOOTER_HTML = """</table><p><a href="/">Return home</a></p></body></html>"""
+GUESTBOOK_PAGE_FOOTER_HTML = """</table></body><footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer></html>"""
 
 def guestbook_key(guestbook_name='DEFAULT_GUESTBOOK_NAME'):
     """Constructs a Datastore key for a Guestbook entity
