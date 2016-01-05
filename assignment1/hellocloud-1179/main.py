@@ -49,7 +49,7 @@ MAIN_PAGE_HEADER_HTML = """\
                 <td style="font-size:0.9em;padding-left:10px">Programmed by Kelvin Watson</td>
             </tr>
         </table>
-        <p>Welcome! This dynamic website features a running digital clock, interaction with the
+        <p>Welcome! This dynamic website was made using Google App Engine (Python) and features a running digital clock, interaction with the
         wunderground.org weather API, and a guestbook.</p>
         <h4 style="border-bottom:solid thin green;">DIGITAL CLOCK</h4>
         It is currently <span id="clock" style="font-family:Inconsolata, Arial, Helvetica, san-serif;"></span>
