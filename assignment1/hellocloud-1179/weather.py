@@ -45,6 +45,7 @@ MAIN_PAGE_HTML = """\
             </select>
             <input type="submit" value="Submit">
         </form>
+    <p><a href="hellocloud-1179.appspot.com">Back to Home</a>
     </body>
     <footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer>
 </html>
@@ -106,30 +107,4 @@ class Weather(webapp2.RequestHandler):
 #!!!TODO: set debug to false before final deploy!!!
 app = webapp2.WSGIApplication([
     ('/weather',Weather),
-], debug=True)
-
-#"""`main` is the top level module for your Flask application."""
-
-# Import the Flask Framework
-#from flask import Flask
-#app = Flask(__name__)
-# Note: We don't need to call run() since our application is embedded within
-# the App Engine WSGI application server.
-
-
-#@app.route('/')
-#def hello():
-#    """Return a friendly HTTP greeting."""
-#    return 'Hello World!'
-
-
-#@app.errorhandler(404)
-#def page_not_found(e):
-#    """Return a custom 404 error."""
-#    return 'Sorry, Nothing at this URL.', 404
-
-
-#@app.errorhandler(500)
-#def application_error(e):
-#    """Return a custom 500 error."""
-#    return 'Sorry, unexpected error: {}'.format(e), 500
+], debug=False)

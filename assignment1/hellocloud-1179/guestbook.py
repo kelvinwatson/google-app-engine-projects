@@ -39,8 +39,7 @@ GUESTBOOK_PAGE_HEADER_HTML = """\
                 <th style="width:36em;border-bottom:solid thin green">Past Guestbook Entries</th>
             <tr>"""
 
-
-GUESTBOOK_PAGE_FOOTER_HTML = """</table></body><footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer></html>"""
+GUESTBOOK_PAGE_FOOTER_HTML = """</table><br><a href="http://hellocloud-1179.appspot.com">Back to Home</a></body><footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer></html>"""
 
 def guestbook_key(guestbook_name='DEFAULT_GUESTBOOK_NAME'):
     """Constructs a Datastore key for a Guestbook entity
@@ -65,8 +64,7 @@ class Guestbook(webapp2.RequestHandler):
         greetings_query = Greeting.query(
             ancestor=guestbook_key(guestbook_name)).order(-Greeting.date)
         greetings = greetings_query.fetch(10)
-        #run to clean all entries
-        #self.delete_all_entries(greetings)
+        #self.delete_all_entries(greetings) #activate to clean all entries
         for greeting in greetings:
             if greeting.author:
                 format = "On %a %b %d, %Y at %H:%M:%S,"
@@ -92,4 +90,4 @@ class Guestbook(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/guestbook', Guestbook),
-], debug=True)
+], debug=False)

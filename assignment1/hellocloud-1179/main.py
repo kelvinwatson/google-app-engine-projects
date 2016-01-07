@@ -28,13 +28,17 @@ MAIN_PAGE_HEADER_HTML = """\
         var day = t.getDay();
         var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
         var hr = t.getHours();
-        hr = (hr>12)?hr-12:hr;
-        hr = (hr==0)?12:hr;
+        var meridiem = "AM";
+        if(hr>12){
+            hr-=12;
+            meridiem="PM";
+        } else if(hr==0){
+            hr=12;
+        }
         var min = t.getMinutes();
         min = (min<10?"0":"")+min;
         var sec = t.getSeconds();
         sec = (sec<10?"0":"")+sec;
-        var meridiem=(hr<12)?"AM":"PM";
         day = days[day]+' ' +mos[m]+' ' +d+' '+y
         document.getElementById("day").innerHTML=day;
         time = hr+":"+min+":"+sec+" "+meridiem;
@@ -134,4 +138,4 @@ class CatchAll(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('.*', CatchAll),
-], debug=True)
+], debug=False)
