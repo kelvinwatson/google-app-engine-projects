@@ -45,7 +45,7 @@ MAIN_PAGE_HTML = """\
             </select>
             <input type="submit" value="Submit">
         </form>
-    <p><a href="hellocloud-1179.appspot.com">Back to Home</a>
+    <p><a href="http://hellocloud-1179.appspot.com">Back to Home</a>
     </body>
     <footer style="clear:both;"><br><div style="font-size:0.85em;clear:both;border-top:solid thin green">Last Modified: 4 Jan 2015, 19:22hr</div></footer>
 </html>

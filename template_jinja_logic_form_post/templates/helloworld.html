@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta char="utf-8">
+  <title>Hello World!</title>
+</head>
+<body>
+  <form action="/" method="post">
+    <fieldset>
+      <legend>Username</legend>
+      <input type="text" name="user-name">
+    </fieldset>
+    <fieldset>
+      <legend>Message</legend>
+      <input type="text" name="message">
+    </fieldset>
+    <fieldset>
+      <legend>Save Message</legend>
+      <input type="submit" value="Save">
+    </fieldset>
+  </form>
+  {% if form_content %}
+  <section>
+    <dl>{% for key, value in form_content.iteritems() %}
+      <dt>{{ key|e }}</dt>
+      <dd>{{ value|e }}</dd>
+    </dl>
+  </section>
+  {% endfor %}
+  {% endif %}
+</body>
+</html>
