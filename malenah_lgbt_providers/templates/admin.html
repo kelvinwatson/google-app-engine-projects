@@ -1,15 +1,61 @@
 {% extends "index.html" %}
 {% block content %}
 
-<section class="form">
-  <form action="/admin" method="post">
-    <legend>Add Provider</legend>
-    <input type="hidden" name="action" value="add_class">
-    <fieldset>
-      <legend>Class Name</legend>
-      <input type="text" name="class-name">
-      <input type="submit" value="Add">
-    </fieldset>
-  </form>
+{% if post_result %}
+<section class="post-result">
+  {{post_result}}
 </section>
+{% endif %}
+
+<br>
+<section class="add-provider-form">
+<form action="/" method="post">
+<input type="hidden" name="action" value="add_provider">
+  <fieldset><legend>Add Provider</legend>
+  <label for="fname">First Name </label><br>
+  <input type="text" name="first-name" id="fname" placeholder="First Name" autofocus required><br>
+  <label for="lname">Last Name</label><br>
+  <input type="text" name="last-name" id="lname" placeholder="Last Name" required><br>
+  <label for="desig">Designation</label></td><br>
+  {% if designations|length>0 %}
+    {% for d in designations %}
+      <input type="radio" name="designation" id="desig" value="{{d.key}}"><label>{{d.name}}</label><br>
+    {% endfor %}
+  {% endif %}
+
+  <label for="servType">Services <br>(check all that apply):</label>
+  {% if services|length>0 %}
+    {% for s in services %}
+      <input type="checkbox" name="services[]" value="{{s.key}}"><label>{{s.name}}  </label>
+      {% endfor %}
+  {%endif%}
+  <br>
+  <input type="submit" value="Add Provider" class="submitButton">
+</form>
+</section>
+
+<br>
+<section class="add-designation-form">
+<form action="/admin" method="post">
+  <fieldset><legend>Add a Designation</legend>
+    <input type="hidden" name="action" value="add_designation">
+    <label for="desig">Designation (e.g. MD, DMD, RN, Pharm.D, R.Ph, Ph.D, B.Sc, other)</label><br>
+    <input type="text" name="first-name" id="desig" placeholder="Designation (e.g. MD, DMD, RN, BSc)"><br>
+    <input type="submit" value="Add Designation">
+  </fieldset>
+</form>
+</section>
+
+<br>
+<section class="add-service-form">
+<form action="/admin" method="post">
+  <fieldset><legend>Add a Service</legend>
+    <input type="hidden" name="action" value="add_service">
+    <label for="serv">Healthcare Service (e.g. Counselling, Dental Care) </label><br>
+    <input type="text" name="first-name" id="serv" placeholder="Service"><br>
+    <input type="submit" value="Add Service">
+  </fieldset>
+</form>
+</section>
+
 {% endblock %}

@@ -1,3 +1,8 @@
 html {
   font-family:Arial,helvetica,sans-serif;
 }
+
+.post-result {
+  margin:10px;
+  color:blue;
+}
