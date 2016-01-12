@@ -1,6 +1,12 @@
 {% extends "index.html" %}
 {% block content %}
 
+<details>
+  <summary>What is MALENAH and what does it stand for?</summary>
+  MALENAH stands for Mobile Ally for LGBT People, Enhancing Via A Network, Access to Healthcare.
+  MALENAH's mission is to close the gap of healthcare disparity in the LGBT population.
+</details>
+
 {% if post_result %}
 <section class="post-result">
   {{post_result}}
@@ -13,10 +19,10 @@
 <input type="hidden" name="action" value="add_provider">
   <fieldset><legend>Add Healthcare Provider</legend>
   <label for="fname">First Name </label><br>
-  <input type="text" name="first-name" id="fname" placeholder="First Name" autofocus required><br>
+  <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus required><br>
 
   <label for="lname">Last Name</label><br>
-  <input type="text" name="last-name" id="lname" placeholder="Last Name" required><br>
+  <input type="text" name="last_name" id="lname" placeholder="Last Name" required><br>
 
   <label for="phone">Phone</label><br>
   <input type="tel" name="phone" id="phone" placeholder="1234567890" required><br>
@@ -28,7 +34,7 @@
   <input type="url" name="website" id="website" value="http://"><br>
 
   <label for="best-time">Best time of day to contact you</label><br>
-  <input type="time" name="best-time"><br>
+  <input type="time" name="best_time"><br>
 
   <label for="desig">Designation</label></td><br>
   {% if designations|length>0 %}
@@ -45,8 +51,8 @@
   {%endif%}<br>
 
   <label for="accept">Currently accepting patients</label></td><br>
-    <input type="radio" name="accept-new-patients" id="accept" value="True" required><label>Yes</label><br>
-    <input type="radio" name="accept-new-patients" id="accept" value="False" required><label>No</label><br>
+    <input type="radio" name="accept_new_patients" id="accept" value="True" required><label>Yes</label><br>
+    <input type="radio" name="accept_new_patients" id="accept" value="False" required><label>No</label><br>
 
   <input type="submit" value="Add Provider" class="submitButton">
 </form>
