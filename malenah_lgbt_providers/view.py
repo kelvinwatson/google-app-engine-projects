@@ -1,4 +1,5 @@
 import base
+import entities as Entity
 import log as console
 from datetime import datetime
 from google.appengine.ext import ndb
@@ -7,20 +8,20 @@ class ViewHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
         console.log(datetime.now().time())
+        self.get_all_providers()
+        self.get_all_designations()
+        self.get_all_services()
         self.template_values = {
             'title': "Record Added",
             'header_title': "Record Added",
             'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-            #'all_records':
+            #'all_providers':
             }
 
     def get(self):
         t = {}
         t['type'] = self.request.get('type')
-        console.log('type='+t['type'])
         self.template_values['record_type'] = t
-        console.log(self.template_values['record_type'])
-        console.log(type(self.template_values['record_type']))
         if t['type']=='healthcare_provider':
             k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
             e = k.get() #get the entity from the database associated with that key
@@ -42,4 +43,24 @@ class ViewHandler(base.BaseHandler):
             console.log("view added services")
         else:
             console.log("wrong type")
+        console.log('type='+str(t))
         base.BaseHandler.render(self, 'view.html', self.template_values) #call the overridden render (above)
+
+    def get_all_providers(self):
+        console.log("\n==Retrieving all providers...==")
+        all_providers = Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()
+        for p in all_providers:
+            console.log('\n   '+str(p))
+        return all_providers
+
+    def get_all_designations(self):
+        console.log("\n==Retrieving all designations...==")
+        all_designations = Entity.Designation.query(ancestor=ndb.Key(Entity.Designation,self.app.config.get('malenah-providers'))).fetch()
+        console.log(all_designations)
+        return all_designations
+
+    def get_all_services(self):
+        console.log("\n==Retrieving all services...==")
+        all_services = Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).fetch()
+        console.log(all_services)
+        return all_services

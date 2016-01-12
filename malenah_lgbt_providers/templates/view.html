@@ -60,9 +60,27 @@
 {%endif%}
 </table>
 
+<h1>All Records Currently in Database</h1>
 <table>
-{% for r in all_providers %}
-{% endfor %}
+{% if all_providers %}
+  {% for r in all_providers %}
+
+  {% endfor %}
+{% endif %}
+
+{% if all_designations %}
+  {% for r in all_designations %}
+
+  {% endfor %}
+{% endif %}
+
+
+{% if all_services %}
+  {% for r in all_services %}
+
+  {% endfor %}
+{% endif %}
+
 </table>
 
 
