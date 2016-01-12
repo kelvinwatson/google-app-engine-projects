@@ -10,7 +10,8 @@ class ViewHandler(base.BaseHandler):
         self.template_values = {
             'title': "Record Added",
             'header_title': "Record Added",
-            'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),
+            'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
+            #'all_records':
             }
 
     def get(self):

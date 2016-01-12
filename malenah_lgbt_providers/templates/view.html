@@ -56,12 +56,16 @@
     <tr><td>Invalid form submission. Please try again.</td></tr>
   {% endif %}
 {% else %}
-<h3>Nothing recorded</h3>
-
+<h3>Nothing new recorded</h3>
 {%endif%}
-
-
-
 </table>
+
+<table>
+{% for r in all_providers %}
+{% endfor %}
+</table>
+
+
+
 <a href="/">Back to Home</a>
 {% endblock %}
