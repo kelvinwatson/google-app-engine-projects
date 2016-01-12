@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{% block content %}
+
+<section class="form">
+  <form action="/admin" method="post">
+    <legend>Add Provider</legend>
+    <input type="hidden" name="action" value="add_class">
+    <fieldset>
+      <legend>Class Name</legend>
+      <input type="text" name="class-name">
+      <input type="submit" value="Add">
+    </fieldset>
+  </form>
+</section>
+{% endblock %}
