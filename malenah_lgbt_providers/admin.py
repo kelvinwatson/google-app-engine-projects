@@ -1,11 +1,14 @@
 import base
 import log as console
+import entities as Entity
+import time
 from datetime import datetime
+from google.appengine.ext import ndb
 
 class AdminHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
-        console.log(datetime.now().time())
+        #console.log(datetime.now().time())
         self.template_values = {
             'title': "MALENAH Administrator Portal",
             'header_title': "Welcome to the M.A.L.E.N.A.H. Administrator Portal",
@@ -18,15 +21,36 @@ class AdminHandler(base.BaseHandler):
     def post(self):
         action = self.request.get('action')
         if action=='add_provider':
-            first_name = self.request.get('first-name')
-            last_name = self.request.get('last-name')
-            console.log(first_name)
-            console.log(last_name)
-            self.template_values['post_result'] = 'Provider successfully added'
+            k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers'))
+            console.log(k)
+            provider = Entity.Provider(parent=k)
+            console.log(provider)
+            provider.first_name = self.request.get('first-name')
+            provider.last_name = self.request.get('last-name')
+            provider.phone = self.request.get('phone')
+            provider.email = self.request.get('email')
+            provider.website = self.request.get('website')
+
+            provider.best_time = datetime.strptime(self.request.get('best-time'), "%H:%M").time()
+            console.log(provider.best_time)
+
+            provider.designation = self.request.get('designation')
+            provider.services = [ndb.Key(urlsafe=x) for x in self.request.get_all('services[]')]
+
+            console.log(self.request.get('accept-new-patients'))
+            provider.accept_new_patients = True if (self.request.get('accept-new-patients') == "True") else False
+            console.log(provider.accept_new_patients)
+
+            #provider.put()
+            #console.log(first_name)
+            #console.log(last_name)
+            self.template_values['post_result'] = 'Provider '+provider.first_name+' '+provider.last_name+' successfully added'
         elif action=='add_designation':
-            self.template_values['post_result'] = 'Designation successfully added'
+            designation = self.request.get('designation')
+            self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
         elif action=='add_service':
-            self.template_values['post_result'] = 'Service successfully added'
+            service = self.request.get('service')
+            self.template_values['post_result'] = service+' service successfully added'
         else:
             self.template_values['post_result'] = 'Unknown action'
         self.render('admin.html',self.template_values)

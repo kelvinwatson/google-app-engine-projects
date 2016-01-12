@@ -1,1 +1,2 @@
 http://www.sitepoint.com/using-python-templates-jinja-google-app-engine/
+https://cloud.google.com/appengine/docs/python/ndb/db_to_ndb

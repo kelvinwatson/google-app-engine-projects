@@ -3,7 +3,7 @@ import webapp2
 import admin as a
 import view as v
 
-config = {'malenah-group':'malenah-data'}
+config = {'malenah-providers':'malenah-data'}
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
