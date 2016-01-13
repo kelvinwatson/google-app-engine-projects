@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import webapp2
 import admin as a
+import edit as e
 import view as v
 
 config = {'malenah-providers':'malenah-data'}
@@ -13,5 +14,6 @@ class MainHandler(webapp2.RequestHandler):
 application = webapp2.WSGIApplication([
     ('/', a.AdminHandler),
     ('/admin', a.AdminHandler),
+    ('/edit', e.EditHandler),
     ('/view', v.ViewHandler),
 ], debug=True, config=config)

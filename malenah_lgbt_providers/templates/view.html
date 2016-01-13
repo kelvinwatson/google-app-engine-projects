@@ -35,7 +35,13 @@
   </tr>
   <tr>
     <th>Services: </th>
-    <td>{{ services }}</td>
+    <td>
+      <ul>
+        {%for s in my_services%}
+        <li>{{s.name}}</li>
+        {%endfor%}
+      </ul>
+    </td>
   </tr>
   {% elif record_type.type|string() == "designation"|string() %}
   <tr>
@@ -82,7 +88,7 @@
     <td>
       {%if services%}
       <ul>
-      {%for s in services%}
+      {%for s in services %}
         <li>{{s.name}}</li>
       {%endfor%}
       </ul>
