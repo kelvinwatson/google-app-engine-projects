@@ -68,6 +68,7 @@
     <th>Website</th>
     <th>Preferred Contact Time</th>
     <th>Designation</th>
+    <th>Services</th>
   </tr>
   {% for p in all_providers %}
   <tr>
@@ -78,6 +79,15 @@
     <td>{{p.website}}</td>
     <td>{{p.best_time}}</td>
     <td>{{p.designation}}</td>
+    <td>
+      {%if services%}
+      <ul>
+      {%for s in services%}
+        <li>{{s.name}}</li>
+      {%endfor%}
+      </ul>
+    {%endif%}
+    </td>
   </tr>
   {% endfor %}</table>
 {% endif %}
