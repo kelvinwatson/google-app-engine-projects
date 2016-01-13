@@ -14,7 +14,9 @@ class AdminHandler(base.BaseHandler):
             'title': "MALENAH Administrator Portal",
             'header_title': "Welcome to the M.A.L.E.N.A.H. Administrator Portal",
             'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),
-            'designations': self.get_all_designations(),
+            'all_providers': self.get_all_providers(),
+            'all_designations': self.get_all_designations(),
+            'all_services':self.get_all_services(),
             }
 
     def get(self):
@@ -43,7 +45,7 @@ class AdminHandler(base.BaseHandler):
             console.log(provider.accept_new_patients)
             new_key = provider.put()
             record_type = 'healthcare_provider'
-            self.template_values['post_result'] = 'Provider '+provider.first_name+' '+provider.last_name+' successfully added'
+            self.template_values['post_result'] = 'Healthcare Provider '+provider.first_name+' '+provider.last_name+' successfully added'
         elif action=='add_designation':
             new_key = self.record_designation()
             designation = self.request.get('designation')

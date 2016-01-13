@@ -6,3 +6,30 @@ html {
   margin:10px;
   color:blue;
 }
+
+#add-provider-fieldset{
+   border:1px solid #F778A1;
+}
+
+#add-designation-fieldset{
+  border:1px solid #FFA500;
+}
+
+#add-service-fieldset{
+  border:1px solid #43C6DB
+}
+
+#add-provider-legend {
+  background-color:#F778A1;
+  font-weight: bold;
+}
+
+#add-designation-legend{
+  background-color:#FFA500;
+  font-weight: bold;
+}
+
+#add-service-legend{
+  background-color:#43C6DB;
+  font-weight: bold;
+}
