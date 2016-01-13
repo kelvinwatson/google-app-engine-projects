@@ -2,7 +2,7 @@
 {% block content %}
 
 {% if record_type %}
-<h3>You added the following record ({{record_type.name}}):</h3>
+<h3>You {{action_done}} the following record ({{record_type.name}}):</h3>
 <table border="1">
   {% if record_type.type|string() == "healthcare_provider"|string() %}
   <tr>

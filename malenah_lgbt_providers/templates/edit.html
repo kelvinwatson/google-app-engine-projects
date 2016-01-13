@@ -1,8 +1,11 @@
 {% extends "index.html" %}
 {% block content %}
 <!--overriding index.html's block content-->
+<form action="/view?key={{entity_key}}&type={{record_type.type}}" method="post">
+  <input type="hidden" name="key" value="{{entity_key}}">
 <table border="0">
   {% if record_type.type|string() == "healthcare_provider"|string() %}
+  <input type="hidden" name="record_type" value="healthcare_provider">
   <tr>
     <td>First Name:</td>
     <td><input type="text" name="first_name" value="{{ first_name }}" autofocus required></td>
@@ -43,14 +46,21 @@
     <td>
       {% if all_services|length>0 %}
         {% for s in all_services %}
-          <input type="checkbox" name="service" id="serv" value="{{s.key}}"
-            {% for t in my_services %} {% if s.name==t.name %}checked="checked"{% endif %}{% endfor %}>{{s.name}}
+          <input type="checkbox" name="services[]" id="serv" value="{{s.key}}"
+            {% for t in my_services %}
+              {% if s.name==t.name %}checked="checked"{% endif %}
+            {% endfor %}>{{s.name}}<br>
         {% endfor %}
       {% endif %}
     </td>
   </tr>
   {%endif%}
+  <tr>
+    <td>Update</td>
+    <td><input type="submit" value="Update Record"></td>
+  </tr>
 </table>
+</form>
 
 {% endblock %}
 

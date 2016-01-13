@@ -24,6 +24,7 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
+        self.template_values['action_done'] = 'added'
         if action=='add_provider':
             k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             provider = Entity.Provider(parent=k)
@@ -64,5 +65,4 @@ class AdminHandler(base.BaseHandler):
         console.log(k)
         service=Entity.Service(parent=k) #create an entity with parent as the malenah-providers group key
         service.name = self.request.get('service')
-        console.log('SERV='+service.name)
         return service.put()

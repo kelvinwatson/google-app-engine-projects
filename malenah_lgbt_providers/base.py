@@ -23,9 +23,13 @@ class BaseHandler(webapp2.RequestHandler):
         all_providers = []
         for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch():
             try:
-                d = ndb.Key(urlsafe=e.designation)
+                d = ndb.Key(urlsafe=e.designation).get().name
             except TypeError:
                 d = None
+            try:
+                s = [{'name':k.get().name} for k in e.services]
+            except TypeError:
+                s = None
             obj = {
                 'first_name':e.first_name,
                 'last_name':e.last_name,
@@ -34,7 +38,7 @@ class BaseHandler(webapp2.RequestHandler):
                 'website':e.website,
                 'best_time':e.best_time.strftime("%H:%M"),
                 'designation':d,
-                'services':[{'name':k.get().name} for k in e.services],
+                'services':s,
                 'key':e.key.urlsafe()
                 }
             all_providers.append(obj)
