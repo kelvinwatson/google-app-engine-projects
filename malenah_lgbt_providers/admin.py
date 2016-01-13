@@ -8,7 +8,7 @@ from google.appengine.ext import ndb
 class AdminHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
-
+        console.log(self.get_all_providers())
         #console.log(datetime.now().time())
         self.template_values = {
             'title': "MALENAH Administrator Portal",

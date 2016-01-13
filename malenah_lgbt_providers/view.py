@@ -30,8 +30,12 @@ class ViewHandler(base.BaseHandler):
             self.template_values['email'] = e.email
             self.template_values['website'] = e.website
             self.template_values['best_time'] = e.best_time.strftime("%H:%M")
-            console.log(e.best_time.strftime("%H:%M"))
-            self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
+            #console.log(e.best_time.strftime("%H:%M"))
+            if e.designation is None or e.designation=='':
+                console.log('empty designation!')#(ndb.Key(urlsafe=e.designation).get().name)
+                self.template_values['designation'] = ''             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
+            else:
+                self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
             self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
         elif t['type']=='designation':
             t['name']='Designation'

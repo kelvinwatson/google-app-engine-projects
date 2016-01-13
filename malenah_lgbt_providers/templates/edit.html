@@ -29,7 +29,7 @@
   </tr>
   <tr>
     <td>Designation:</td>
-    <td>{{ designation }}
+    <td>
         {% if all_designations|length>0 %}
           {% for d in all_designations %}
             <!--d.key must a urlsafe-->
@@ -41,15 +41,17 @@
   <tr>
     <td>Services:</td>
     <td>
-      <ul>
-        {%for s in my_services%}
-        <li>{{s.name}}</li>
-        {%endfor%}
-      </ul>
+      {% if all_services|length>0 %}
+        {% for s in all_services %}
+          <input type="checkbox" name="service" id="serv" value="{{s.key}}"
+            {% for t in my_services %} {% if s.name==t.name %}checked="checked"{% endif %}{% endfor %}>{{s.name}}
+        {% endfor %}
+      {% endif %}
     </td>
   </tr>
-  {% endif %}
+  {%endif%}
 </table>
+
 {% endblock %}
 
 {% block all_database_data %}
