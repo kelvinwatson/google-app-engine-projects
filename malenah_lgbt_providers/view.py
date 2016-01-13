@@ -22,22 +22,23 @@ class ViewHandler(base.BaseHandler):
         t = {}
         t['type'] = self.request.get('type')
         self.template_values['record_type'] = t
+        k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
+        e = k.get()
         if t['type']=='healthcare_provider':
-            k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
-            e = k.get() #get the entity from the database associated with that key
-            #set the template values
             t['name']='Healthcare Provider'
-            self.template_values['first_name'] = e.first_name
+            self.template_values['first_name'] = e.first_name #set template values
             self.template_values['last_name'] = e.last_name
             self.template_values['phone'] = e.phone
             self.template_values['email'] = e.email
             self.template_values['website'] = e.website
             self.template_values['best_time'] = e.best_time
-            self.template_values['designation'] = e.designation
+            self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
             self.template_values['services'] = e.services #TODO: on view.html, just needs to display, not prepopulate with checks
         elif t['type']=='designation':
             t['name']='Designation'
             console.log("view added designation")
+            self.template_values['designation'] = e.name
+            console.log(self.template_values['designation'])
         elif t['type']=='services':
             t['name']='Service(s)'
             console.log("view added services")
@@ -52,15 +53,3 @@ class ViewHandler(base.BaseHandler):
         for p in all_providers:
             console.log('\n   '+str(p))
         return all_providers
-
-    def get_all_designations(self):
-        console.log("\n==Retrieving all designations...==")
-        all_designations = Entity.Designation.query(ancestor=ndb.Key(Entity.Designation,self.app.config.get('malenah-providers'))).fetch()
-        console.log(all_designations)
-        return all_designations
-
-    def get_all_services(self):
-        console.log("\n==Retrieving all services...==")
-        all_services = Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).fetch()
-        console.log(all_services)
-        return all_services

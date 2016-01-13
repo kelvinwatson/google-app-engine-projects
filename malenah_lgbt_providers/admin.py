@@ -8,11 +8,13 @@ from google.appengine.ext import ndb
 class AdminHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
+
         #console.log(datetime.now().time())
         self.template_values = {
             'title': "MALENAH Administrator Portal",
             'header_title': "Welcome to the M.A.L.E.N.A.H. Administrator Portal",
             'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),
+            'designations': self.get_all_designations(),
             }
 
     def get(self):
@@ -21,7 +23,7 @@ class AdminHandler(base.BaseHandler):
     def post(self):
         action = self.request.get('action')
         if action=='add_provider':
-            k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers'))
+            k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             console.log(k)
             provider = Entity.Provider(parent=k)
             console.log(provider)
@@ -38,22 +40,31 @@ class AdminHandler(base.BaseHandler):
             provider.accept_new_patients = True if (self.request.get('accept-new-patients') == "True") else False
             console.log(provider.accept_new_patients)
             new_key = provider.put()
+            record_type = 'healthcare_provider'
             self.template_values['post_result'] = 'Provider '+provider.first_name+' '+provider.last_name+' successfully added'
         elif action=='add_designation':
+            new_key = self.record_designation()
             designation = self.request.get('designation')
             self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
-        elif action=='add_service':
+            record_type = 'designation'
+        elif action=='add_services':
             service = self.request.get('service')
             self.template_values['post_result'] = service+' service successfully added'
+            record_type = 'service'
         else:
             self.template_values['post_result'] = 'Unknown action'
-        self.redirect('/view?key='+ new_key.urlsafe()+ '&type=healthcare_provider')
+        self.redirect('/view?key='+ new_key.urlsafe()+ '&type='+record_type)
+
+    def record_designation(self):
+        k = ndb.Key(Entity.Designation, self.app.config.get('malenah-providers'))
+        console.log(k)
+        designation = Entity.Designation(parent=k)
+        console.log(designation)
+        designation.name = self.request.get('designation')
+        console.log(designation.name)
+        return designation.put()
 
 '''
-        provider = {}
-        provider.name = self.re
-        self.template_values['message'] = 'Provider ' ++ ' successfully added'
-        self.render('admin.html',self.template_values)
 
         action = self.request.get('action')
         if action == 'add_channel':
