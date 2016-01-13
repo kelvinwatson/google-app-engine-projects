@@ -24,7 +24,6 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
-        console.log('*****action='+str(action))
         if action=='add_provider':
             k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             provider = Entity.Provider(parent=k)

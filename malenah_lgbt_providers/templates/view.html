@@ -3,38 +3,38 @@
 
 {% if record_type %}
 <h3>You added the following record ({{record_type.name}}):</h3>
-<table>
+<table border="1">
   {% if record_type.type|string() == "healthcare_provider"|string() %}
   <tr>
-    <th>First Name: </th>
+    <td>First Name:</td>
     <td>{{ first_name }}</td>
   </tr>
   <tr>
-    <th>Last Name: </th>
+    <td>Last Name:</td>
     <td>{{ last_name }}</td>
   </tr>
   <tr>
-    <th>Phone: </th>
+    <td>Phone:</td>
     <td>{{ phone }}</td>
   </tr>
   <tr>
-    <th>Email: </th>
+    <td>Email:</td>
     <td>{{ email }}</td>
   </tr>
   <tr>
-    <th>Website: </th>
+    <td>Website:</td>
     <td>{{ website }}</td>
   </tr>
   <tr>
-    <th>Best Time to Contact You: </th>
+    <td>Best Time to Contact You:</td>
     <td>{{ best_time }}</td>
   </tr>
   <tr>
-    <th>Designation: </th>
+    <td>Designation:</td>
     <td>{{ designation }}</td>
   </tr>
   <tr>
-    <th>Services: </th>
+    <td>Services:</td>
     <td>
       <ul>
         {%for s in my_services%}
@@ -45,7 +45,7 @@
   </tr>
   {% elif record_type.type|string() == "designation"|string() %}
   <tr>
-    <th>Designation: </th>
+    <th>Designation:</th>
     <td>{{ designation }}</td>
   </tr>
 
@@ -61,74 +61,6 @@
 <h3>Nothing new recorded</h3>
 {%endif%}
 </table>
-
-<h1>All Records Currently in Database</h1>
-{% if all_providers %}
-<table border="1">
-  <caption>Healthcare Providers</caption>
-  <tr>
-    <th>First Name</th>
-    <th>Last Name</th>
-    <th>Phone</th>
-    <th>Email</th>
-    <th>Website</th>
-    <th>Preferred Contact Time</th>
-    <th>Designation</th>
-    <th>Services</th>
-  </tr>
-  {% for p in all_providers %}
-  <tr>
-    <td>{{p.first_name}}</td>
-    <td>{{p.last_name}}</td>
-    <td>{{p.phone}}</td>
-    <td>{{p.email}}</td>
-    <td>{{p.website}}</td>
-    <td>{{p.best_time}}</td>
-    <td>{{p.designation}}</td>
-    <td>
-      {%if p.services %}
-      <ul>
-      {%for s in p.services %}
-        <li>{{s.name}}</li>
-      {%endfor%}
-      </ul>
-    {%endif%}
-    </td>
-  </tr>
-  {% endfor %}</table>
-{% endif %}
-<br>
-
-{% if all_designations %}
-<table border="1">
-  <caption>Designations</caption>
-  <tr>
-    <th>Designation Types</th>
-  </tr>
-  {% for d in all_designations %}
-  <tr>
-    <td>{{ d.name }}</td>
-  </tr>
-  {% endfor %}</table>
-{% endif %}
-<br>
-
-{% if all_services %}
-<table border="1">
-  <caption>Services</caption>
-  <tr>
-    <th>Service Types</th>
-  </tr>
-  {% for r in all_services %}
-  <tr>
-    <td>{{ r.name }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% endif %}
-
-</table>
-
 
 
 <a href="/">Back to Home</a>

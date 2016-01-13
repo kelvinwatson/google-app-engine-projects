@@ -1,8 +1,58 @@
 {% extends "index.html" %}
 {% block content %}
-
-<section>
-
-</section>
-
+<!--overriding index.html's block content-->
+<table border="0">
+  {% if record_type.type|string() == "healthcare_provider"|string() %}
+  <tr>
+    <td>First Name:</td>
+    <td><input type="text" name="first_name" value="{{ first_name }}" autofocus required></td>
+  </tr>
+  <tr>
+    <td>Last Name:</td>
+    <td><input type="text" name="last_name" value="{{ last_name }}" required></td>
+  </tr>
+  <tr>
+    <td>Phone:</td>
+    <td><input type="tel" name="phone" value="{{ phone }}" required></td>
+  </tr>
+  <tr>
+    <td>Email:</td>
+    <td><input type="email" name="email" value="{{ email }}" required></td>
+  </tr>
+  <tr>
+    <td>Website:</td>
+    <td><input type="url" name="website" value="{{ website }}"></td>
+  </tr>
+  <tr>
+    <td>Best Time to Contact You:</td>
+    <td><input type="time" name="best_time" value="{{ best_time }}"></td>
+  </tr>
+  <tr>
+    <td>Designation:</td>
+    <td>{{ designation }}
+        {% if all_designations|length>0 %}
+          {% for d in all_designations %}
+            <!--d.key must a urlsafe-->
+            <input type="radio" name="designation" id="desig" value="{{d.key}}" {%if d.name == my_designation %}checked{%endif%}><label for="desig">{{d.name}}</label><br>
+          {% endfor %}
+        {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td>Services:</td>
+    <td>
+      <ul>
+        {%for s in my_services%}
+        <li>{{s.name}}</li>
+        {%endfor%}
+      </ul>
+    </td>
+  </tr>
+  {% endif %}
+</table>
 {% endblock %}
+
+{% block all_database_data %}
+<!--overriding index.html's all_database_data block content with no contents-->
+<!--result is that nothing will be displayed-->
+{%endblock%}

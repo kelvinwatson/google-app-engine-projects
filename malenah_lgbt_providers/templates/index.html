@@ -13,6 +13,78 @@
 {% block content %}
 
 {% endblock %}
+
+
+{% block all_database_data %}
+
+<h1>All Records Currently in Database</h1>
+{% if all_providers %}
+<table border="1">
+  <caption>Healthcare Providers</caption>
+  <tr>
+    <th>Edit?</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Phone</th>
+    <th>Email</th>
+    <th>Website</th>
+    <th>Preferred Contact Time</th>
+    <th>Designation</th>
+    <th>Services</th>
+  </tr>
+  {% for p in all_providers %}
+  <tr>
+    <td><a href='/edit?key={{ p.key }}&type=healthcare_provider'>Edit</a></td>
+    <td>{{p.first_name}}</td>
+    <td>{{p.last_name}}</td>
+    <td>{{p.phone}}</td>
+    <td>{{p.email}}</td>
+    <td>{{p.website}}</td>
+    <td>{{p.best_time}}</td>
+    <td>{{p.designation}}</td>
+    <td>
+      {%if p.services %}
+      <ul>
+      {%for s in p.services %}
+        <li>{{s.name}}</li>
+      {%endfor%}
+      </ul>
+    {%endif%}
+    </td>
+  </tr>
+  {% endfor %}</table>
+{% endif %}
+<br>
+
+{% if all_designations %}
+<table border="1">
+  <caption>Designations</caption>
+  <tr>
+    <th>Designation Types</th>
+  </tr>
+  {% for d in all_designations %}
+  <tr>
+    <td>{{ d.name }}</td>
+  </tr>
+  {% endfor %}</table>
+{% endif %}
+<br>
+
+{% if all_services %}
+<table border="1">
+  <caption>Services</caption>
+  <tr>
+    <th>Service Types</th>
+  </tr>
+  {% for r in all_services %}
+  <tr>
+    <td>{{ r.name }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% endblock%}
 <footer class="">Last Accessed: {{ last_accessed }}</footer>
 </div>
 </body>

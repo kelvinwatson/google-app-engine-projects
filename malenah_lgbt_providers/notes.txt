@@ -1,2 +1,35 @@
 http://www.sitepoint.com/using-python-templates-jinja-google-app-engine/
 https://cloud.google.com/appengine/docs/python/ndb/db_to_ndb
+
+
+
+index.html
+<html><body>
+
+{% block content %}
+<h1>Hello World</h1>
+<p>This is a paragraph</p>
+{% endblock %}
+
+{% block all_database_data %}
+<table>
+  <tr>...some content...</tr>
+</table>
+{%endblock%}
+</body></html>
+-------------------------------------------------
+admin.html
+{% extends "index.html" %}
+
+{% block content %}
+<!--anything added in here will OVERRIDE index.html's content block -->
+<!-- if you put nothing in here, then you will override index.html's content
+block with no contents-->
+<!-- if you want the original index.html's block content to appear,
+do NOT even introduce {% block content %} {%endblock%} at all! -->
+{% endblock %}
+
+{% block all_database_data %}
+<!--overriding index.html's all_database_data block content with no contents-->
+<!--result is that nothing will be displayed-->
+{%endblock%}
