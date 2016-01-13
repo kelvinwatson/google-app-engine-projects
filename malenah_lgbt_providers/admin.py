@@ -67,36 +67,3 @@ class AdminHandler(base.BaseHandler):
         service.name = self.request.get('service')
         console.log('SERV='+service.name)
         return service.put()
-
-
-
-'''
-
-        action = self.request.get('action')
-        if action == 'add_channel':
-            #parent group for all channels is default-group
-            k = ndb.Key(db_defs.Channel, self.app.config.get('default-group'))
-            chan = db_defs.Channel(parent=k)
-            chan.name = self.request.get('channel-name')
-            #construct a key from a url safe string for every checkbox that was checked in the form
-            #classes[] just denotes the group of classes that was checked
-            #turn all of those checked classes into a list of keys (list comprehensions basically append to lists quickly)
-            #recall from deb_defs.py that the Channel's classes property = ndb.KeyProperty(repeated=True) is repeated,
-            #so it takes a list of keys
-            chan.classes = [ndb.Key(urlsafe=x) for x in self.request.get_all('classes[]')]
-            chan.active = True
-            chan.icon = icon_key
-            chan.put() #save the channel
-            self.template_values['message'] = 'Added channel '+chan.name+' to the database.'
-        elif action=='add_class':
-            k=ndb.Key(db_defs.ChannelClass, self.app.config.get('default-group'))
-            c=db_defs.ChannelClass(parent=k)
-            c.name=self.request.get('class-name')
-            c.put()
-            #overwrites the message value in the template_values dictionary
-            self.template_values['message'] = 'Added class '+c.name+' to the database.'
-        else:
-            self.template_values['message'] = 'Action '+action+' is unknown.'
-        console.log([{'name':x.name,'key':x.key.urlsafe()} for x in db_defs.ChannelClass.query(ancestor=ndb.Key(db_defs.Channel, self.app.config.get('default-group'))).fetch()])
-        self.render('admin.html')
-'''

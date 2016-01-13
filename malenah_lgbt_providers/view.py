@@ -32,7 +32,6 @@ class ViewHandler(base.BaseHandler):
             self.template_values['best_time'] = e.best_time
             self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
             self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
-
         elif t['type']=='designation':
             t['name']='Designation'
             self.template_values['designation'] = e.name

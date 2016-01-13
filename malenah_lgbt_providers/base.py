@@ -21,7 +21,7 @@ class BaseHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_variables))
 
     def get_all_providers(self):
-        all_providers = [{'first_name':e.first_name,'last_name':e.last_name,'phone':e.phone,'email':e.email,'website':e.website,'best_time':e.best_time,'designation':ndb.Key(urlsafe=e.designation).get().name,'services':e.services,'key':e.key.urlsafe()} for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()]
+        all_providers = [{'first_name':e.first_name,'last_name':e.last_name,'phone':e.phone,'email':e.email,'website':e.website,'best_time':e.best_time,'designation':ndb.Key(urlsafe=e.designation).get().name,'services':[{'name':k.get().name} for k in e.services] ,'key':e.key.urlsafe()} for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()]
         return all_providers
 
     def get_all_designations(self):

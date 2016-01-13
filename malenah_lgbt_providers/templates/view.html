@@ -86,9 +86,9 @@
     <td>{{p.best_time}}</td>
     <td>{{p.designation}}</td>
     <td>
-      {%if services%}
+      {%if p.services %}
       <ul>
-      {%for s in services %}
+      {%for s in p.services %}
         <li>{{s.name}}</li>
       {%endfor%}
       </ul>
