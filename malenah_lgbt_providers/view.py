@@ -8,14 +8,16 @@ class ViewHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
         console.log(datetime.now().time())
-        self.get_all_providers()
-        self.get_all_designations()
-        self.get_all_services()
+        console.log(self.get_all_providers())
+        console.log(self.get_all_designations())
+        console.log(self.get_all_services())
         self.template_values = {
             'title': "Record Added",
             'header_title': "Record Added",
-            'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-            #'all_providers':
+            'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),
+            'all_providers': self.get_all_providers(),
+            'all_designations': self.get_all_designations(),
+            'all_services':self.get_all_services()
             }
 
     def get(self):

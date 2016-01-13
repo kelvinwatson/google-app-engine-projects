@@ -22,7 +22,7 @@ class BaseHandler(webapp2.RequestHandler):
 
     def get_all_providers(self):
         #console.log("\n==Retrieving all providers...==")
-        all_providers = [{'last_name':entity.last_name,'key':entity.key.urlsafe()} for entity in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()]
+        all_providers = [{'first_name':e.first_name,'last_name':e.last_name,'key':e.key.urlsafe()} for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()]
 #        for p in all_providers:
 #            console.log('\n   '+str(p))
         return all_providers
