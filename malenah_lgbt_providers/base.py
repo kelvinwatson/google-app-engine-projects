@@ -31,12 +31,12 @@ class BaseHandler(webapp2.RequestHandler):
         #console.log("\n== BASE HANDLER Retrieving all designations...==")
         #this step is essential when later extracting these keys from a form
         #retrieve entities from the database
-        all_designations = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Designation.query(ancestor=ndb.Key(Entity.Designation,self.app.config.get('malenah-providers'))).fetch()]
+        all_designations = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Designation.query(ancestor=ndb.Key(Entity.Designation,self.app.config.get('malenah-providers'))).order(Entity.Designation.name).fetch()]
         #console.log(str(all_designations))
         return all_designations
 
     def get_all_services(self):
         #console.log("\n== BASE HANDLER Retrieving all services...==")
-        all_services = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).fetch()]
+        all_services = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).order(Entity.Service.name).fetch()]
         #console.log(all_services)
         return all_services
