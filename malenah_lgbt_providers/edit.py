@@ -37,9 +37,9 @@ class EditHandler(base.BaseHandler):
             #console.log(minute)
             self.template_values['my_designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
 
-            for d in self.get_all_designations():
-                if d['name'] == ndb.Key(urlsafe=e.designation).get().name:
-                    self.template_values['my_designation'] = ndb.Key(urlsafe=e.designation).get().name #get it to be checked
+            #for d in self.get_all_designations():
+            #    if d['name'] == ndb.Key(urlsafe=e.designation).get().name:
+            #        self.template_values['my_designation'] = ndb.Key(urlsafe=e.designation).get().name #get it to be checked
 
             self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
         elif t['type']=='designation':
