@@ -43,14 +43,10 @@
     <td>{{ designation }}</td>
   </tr>
 
-  {% elif record_type.type|string() == "services" %}
+  {% elif record_type.type|string() == "service" %}
   <tr>
-    <th>Services: </th>
-    <td>
-      <ul>{%for s in services %}
-        <li>{{ s }}</li>
-      {%endfor%}</ul>
-    </td>
+    <th>Service: </th>
+    <td>{{service}}</td>
   </tr>
   {% else %}
     <tr><td>Invalid form submission. Please try again.</td></tr>

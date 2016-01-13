@@ -22,6 +22,7 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
+        console.log('*****action='+str(action))
         if action=='add_provider':
             k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             console.log(k)
@@ -34,7 +35,8 @@ class AdminHandler(base.BaseHandler):
             provider.website = self.request.get('website')
             provider.best_time = datetime.strptime(self.request.get('best_time'), "%H:%M").time()
             #console.log(provider.best_time)
-            provider.designation = self.request.get('designation')
+            provider.designation = self.request.get('designation') #self.request.get('designation') is a urlsafe KEY
+            console.log('*******************PROVIDER.DESIGNATION='+str(provider.designation))
             provider.services = [ndb.Key(urlsafe=x) for x in self.request.get_all('services[]')]
             #console.log(self.request.get('accept_new_patients'))
             provider.accept_new_patients = True if (self.request.get('accept-new-patients') == "True") else False
@@ -47,7 +49,9 @@ class AdminHandler(base.BaseHandler):
             designation = self.request.get('designation')
             self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
             record_type = 'designation'
-        elif action=='add_services':
+        elif action=='add_service':
+            console.log("HELLO???")
+            new_key = self.record_service()
             service = self.request.get('service')
             self.template_values['post_result'] = service+' service successfully added'
             record_type = 'service'
@@ -61,8 +65,18 @@ class AdminHandler(base.BaseHandler):
         designation = Entity.Designation(parent=k)
         console.log(designation)
         designation.name = self.request.get('designation')
-        console.log(designation.name)
+        console.log('**********************DESIGNATION='+designation.name)
         return designation.put()
+
+    def record_service(self):
+        k=ndb.Key(Entity.Service, self.app.config.get('malenah-providers')) #create a Service key
+        console.log(k)
+        service=Entity.Service(parent=k) #create an entity with parent as the malenah-providers group key
+        service.name = self.request.get('service')
+        console.log('SERV='+service.name)
+        return service.put()
+
+
 
 '''
 

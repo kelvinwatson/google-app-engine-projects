@@ -22,6 +22,7 @@ class ViewHandler(base.BaseHandler):
         t = {}
         t['type'] = self.request.get('type')
         self.template_values['record_type'] = t
+        console.log("t="+str(t))
         k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
         e = k.get()
         if t['type']=='healthcare_provider':
@@ -36,20 +37,15 @@ class ViewHandler(base.BaseHandler):
             self.template_values['services'] = e.services #TODO: on view.html, just needs to display, not prepopulate with checks
         elif t['type']=='designation':
             t['name']='Designation'
-            console.log("view added designation")
+            #console.log("view added designation")
             self.template_values['designation'] = e.name
             console.log(self.template_values['designation'])
-        elif t['type']=='services':
-            t['name']='Service(s)'
-            console.log("view added services")
+        elif t['type']=='service':
+            t['name']='Service'
+            #console.log("view added services")
+            self.template_values['service'] = e.name
+            console.log(self.template_values['service'])
         else:
             console.log("wrong type")
-        console.log('type='+str(t))
+        #console.log('type='+str(t))
         base.BaseHandler.render(self, 'view.html', self.template_values) #call the overridden render (above)
-
-    def get_all_providers(self):
-        console.log("\n==Retrieving all providers...==")
-        all_providers = Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch()
-        for p in all_providers:
-            console.log('\n   '+str(p))
-        return all_providers

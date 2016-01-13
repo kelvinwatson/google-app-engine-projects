@@ -39,15 +39,19 @@
   <label for="desig">Designation</label></td><br>
   {% if designations|length>0 %}
     {% for d in designations %}
+      <!--d.key must a urlsafe-->
       <input type="radio" name="designation" id="desig" value="{{d.key}}"><label>{{d.name}}</label><br>
     {% endfor %}
   {% endif %}
 
   <label for="servType">Services <br>(check all that apply):</label>
   {% if services|length>0 %}
+    <ul>
     {% for s in services %}
-      <input type="checkbox" name="services[]" value="{{s.key}}"><label>{{s.name}}  </label>
-      {% endfor %}
+      <!--s.key must a urlsafe-->
+      <li><input type="checkbox" name="services[]" value="{{s.key}}"><label>{{s.name}}</label></li>
+    {% endfor %}
+    </ul>
   {%endif%}<br>
 
   <label for="accept">Currently accepting patients</label></td><br>
