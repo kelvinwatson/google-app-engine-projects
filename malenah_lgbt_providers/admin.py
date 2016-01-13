@@ -24,7 +24,9 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
-        self.template_values['action_done'] = 'added'
+        action_done = self.request.get('action_done')
+
+        #self.template_values['action_done'] = 'added'
         if action=='add_provider':
             k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             provider = Entity.Provider(parent=k)
@@ -39,20 +41,20 @@ class AdminHandler(base.BaseHandler):
             provider.accept_new_patients = True if (self.request.get('accept-new-patients') == "True") else False
             new_key = provider.put()
             record_type = 'healthcare_provider'
-            self.template_values['post_result'] = 'Healthcare Provider '+provider.first_name+' '+provider.last_name+' successfully added'
+            #self.template_values['post_result'] = 'Healthcare Provider '+provider.first_name+' '+provider.last_name+' successfully added'
         elif action=='add_designation':
             new_key = self.record_designation()
             designation = self.request.get('designation')
-            self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
+            #self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
             record_type = 'designation'
         elif action=='add_service':
             new_key = self.record_service()
             service = self.request.get('service')
-            self.template_values['post_result'] = service+' service successfully added'
+            #self.template_values['post_result'] = service+' service successfully added'
             record_type = 'service'
         else:
             self.template_values['post_result'] = 'Unknown action'
-        self.redirect('/view?key='+ new_key.urlsafe()+ '&type='+record_type)
+        self.redirect('/view?key='+ new_key.urlsafe()+ '&type='+record_type+'&action_done='+action_done)
 
     def record_designation(self):
         k = ndb.Key(Entity.Designation, self.app.config.get('malenah-providers'))

@@ -6,14 +6,16 @@ from google.appengine.ext import ndb
 
 class ViewHandler(base.BaseHandler):
     def __init__(self, request, response):
+        console.log("INIT!!!")
         self.initialize(request,response)
         self.template_values = {
             'title': "Record Added (MALENAH Administrator Portal)",
-            'header_title': "Record Added",
+            'header_title': "Record "+ self.request.get('action_done'),
             'last_accessed': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),
             'all_providers': self.get_all_providers(),
             'all_designations': self.get_all_designations(),
-            'all_services':self.get_all_services()
+            'all_services':self.get_all_services(),
+            'action_done':self.request.get('action_done'),
             }
 
     def get(self):
@@ -51,6 +53,7 @@ class ViewHandler(base.BaseHandler):
         t = {}
         t['type'] = self.request.get('type')
         self.template_values['record_type'] = t
+        self.template_values['action_done'] = self.request.get('action_done')
         if t['type']=='healthcare_provider':
             t['name']='Healthcare Provider'
             k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
@@ -73,8 +76,6 @@ class ViewHandler(base.BaseHandler):
                 self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name
             e.services = [ndb.Key(urlsafe=k) for k in self.request.get_all('services[]')]
             e.put()
-
-
         elif t['type']=='designation':
             t['name']='Designation'
             self.template_values['designation'] = e.name

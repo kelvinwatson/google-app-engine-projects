@@ -1,65 +1,66 @@
 {% extends "index.html" %}
 {% block content %}
 <!--overriding index.html's block content-->
-<form action="/view?key={{entity_key}}&type={{record_type.type}}" method="post">
+<form action="/view?key={{entity_key}}&type={{record_type.type}}&action_done=updated" method="post">
   <input type="hidden" name="key" value="{{entity_key}}">
-<table border="0">
-  {% if record_type.type|string() == "healthcare_provider"|string() %}
-  <input type="hidden" name="record_type" value="healthcare_provider">
-  <tr>
-    <td>First Name:</td>
-    <td><input type="text" name="first_name" value="{{ first_name }}" autofocus required></td>
-  </tr>
-  <tr>
-    <td>Last Name:</td>
-    <td><input type="text" name="last_name" value="{{ last_name }}" required></td>
-  </tr>
-  <tr>
-    <td>Phone:</td>
-    <td><input type="tel" name="phone" value="{{ phone }}" required></td>
-  </tr>
-  <tr>
-    <td>Email:</td>
-    <td><input type="email" name="email" value="{{ email }}" required></td>
-  </tr>
-  <tr>
-    <td>Website:</td>
-    <td><input type="url" name="website" value="{{ website }}"></td>
-  </tr>
-  <tr>
-    <td>Best Time to Contact You:</td>
-    <td><input type="time" name="best_time" value="{{ best_time }}"></td>
-  </tr>
-  <tr>
-    <td>Designation:</td>
-    <td>
-        {% if all_designations|length>0 %}
-          {% for d in all_designations %}
-            <!--d.key must a urlsafe-->
-            <input type="radio" name="designation" id="desig" value="{{d.key}}" {%if d.name == my_designation %}checked{%endif%}><label for="desig">{{d.name}}</label><br>
+  <input type="hidden" name="action_done" value="updated">
+  <table border="0">
+    {% if record_type.type|string() == "healthcare_provider"|string() %}
+    <input type="hidden" name="record_type" value="healthcare_provider">
+    <tr>
+      <td>First Name:</td>
+      <td><input type="text" name="first_name" value="{{ first_name }}" autofocus required></td>
+    </tr>
+    <tr>
+      <td>Last Name:</td>
+      <td><input type="text" name="last_name" value="{{ last_name }}" required></td>
+    </tr>
+    <tr>
+      <td>Phone:</td>
+      <td><input type="tel" name="phone" value="{{ phone }}" required></td>
+    </tr>
+    <tr>
+      <td>Email:</td>
+      <td><input type="email" name="email" value="{{ email }}" required></td>
+    </tr>
+    <tr>
+      <td>Website:</td>
+      <td><input type="url" name="website" value="{{ website }}"></td>
+    </tr>
+    <tr>
+      <td>Best Time to Contact You:</td>
+      <td><input type="time" name="best_time" value="{{ best_time }}"></td>
+    </tr>
+    <tr>
+      <td>Designation:</td>
+      <td>
+          {% if all_designations|length>0 %}
+            {% for d in all_designations %}
+              <!--d.key must a urlsafe-->
+              <input type="radio" name="designation" id="desig" value="{{d.key}}" {%if d.name == my_designation %}checked{%endif%}><label for="desig">{{d.name}}</label><br>
+            {% endfor %}
+          {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Services:</td>
+      <td>
+        {% if all_services|length>0 %}
+          {% for s in all_services %}
+            <input type="checkbox" name="services[]" id="serv" value="{{s.key}}"
+              {% for t in my_services %}
+                {% if s.name==t.name %}checked="checked"{% endif %}
+              {% endfor %}>{{s.name}}<br>
           {% endfor %}
         {% endif %}
-    </td>
-  </tr>
-  <tr>
-    <td>Services:</td>
-    <td>
-      {% if all_services|length>0 %}
-        {% for s in all_services %}
-          <input type="checkbox" name="services[]" id="serv" value="{{s.key}}"
-            {% for t in my_services %}
-              {% if s.name==t.name %}checked="checked"{% endif %}
-            {% endfor %}>{{s.name}}<br>
-        {% endfor %}
-      {% endif %}
-    </td>
-  </tr>
-  {%endif%}
-  <tr>
-    <td>Update</td>
-    <td><input type="submit" value="Update Record"></td>
-  </tr>
-</table>
+      </td>
+    </tr>
+    {%endif%}
+    <tr>
+      <td>Update</td>
+      <td><input type="submit" value="Update Record"></td>
+    </tr>
+  </table>
 </form>
 
 {% endblock %}
