@@ -43,8 +43,6 @@ class BaseHandler(webapp2.RequestHandler):
                 'key':e.key.urlsafe()
                 }
             all_providers.append(obj)
-            console.log("WEL??")
-            console.log(e.accept_new_patients)
         return all_providers
 
     def get_all_designations(self):

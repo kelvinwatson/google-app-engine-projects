@@ -48,8 +48,6 @@ class AdminHandler(base.BaseHandler):
             provider.best_time = datetime.strptime(self.request.get('best_time'), "%H:%M").time()
             provider.designation = self.request.get('my_designation') #self.request.get('designation') is a urlsafe KEY
             provider.services = [ndb.Key(urlsafe=x) for x in self.request.get_all('services[]')]
-            console.log("SOOOO?????")
-            console.log(self.request.get('accept_new_patients'))
             provider.accept_new_patients = True if (self.request.get('accept_new_patients') == "True") else False
             new_key = provider.put()
             record_type = 'healthcare_provider'
