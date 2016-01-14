@@ -92,6 +92,8 @@ class ViewHandler(base.BaseHandler):
                 else:
                     self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name
                 e.services = [ndb.Key(urlsafe=k) for k in self.request.get_all('services[]')]
+                e.accept_new_patients = True if (self.request.get('accept_new_patients')=="True") else False
+                console.log('recording='+str(e.accept_new_patients))
                 e.put()
             elif t['type']=='designation':
                 t['name']='Designation'

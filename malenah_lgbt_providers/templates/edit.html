@@ -37,7 +37,7 @@
           {% if all_designations|length>0 %}
             {% for d in all_designations %}
               <!--d.key must a urlsafe-->
-              <input type="radio" name="designation" id="desig" value="{{d.key}}" {%if d.name == my_designation %}checked{%endif%}><label for="desig">{{d.name}}</label><br>
+              <label for="desig"><input type="radio" name="designation" id="desig" value="{{d.key}}" {%if d.name == my_designation %}checked{%endif%}>{{d.name}}</label><br>
             {% endfor %}
           {% endif %}
       </td>
@@ -56,6 +56,11 @@
       </td>
     </tr>
     {%endif%}
+    <tr>
+      <td>Accepting Patients:</td>
+      <td><input type="radio" id="accept" name="accept_new_patients" value="True" {% if accept_new_patients == "True" %}checked{%endif%}>Yes<br>
+      <input type="radio" name="accept_new_patients" value="False" {% if accept_new_patients == "False" %}checked{%endif%}>No</td>
+    </tr>
     <tr>
       <td>Update</td>
       <td><input type="submit" value="Update Record"></td>

@@ -46,6 +46,7 @@ class EditHandler(base.BaseHandler):
                     self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key
                 except (TypeError, AttributeError) as ex:
                     self.template_values['my_services'] = None
+                self.template_values['accept_new_patients'] = "True" if (e.accept_new_patients is True) else "False" #boollean
             elif t['type']=='designation':
                 t['name']='Designation'
                 self.template_values['designation'] = e.name
