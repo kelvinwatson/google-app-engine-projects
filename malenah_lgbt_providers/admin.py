@@ -8,6 +8,8 @@ from google.appengine.ext import ndb
 class AdminHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
+        self.curr_services =  self.get_all_services()
+        self.curr_designations = self.get_all_designations()
         self.template_values = {
             'title': "MALENAH Administrator Portal",
             'header_title': "Welcome to the M.A.L.E.N.A.H. Administrator Portal",
@@ -23,12 +25,6 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
-
-
-
-
-        action_done = self.request.get('action_done')
-
         #all form fields completed
         if action=='add_provider':
             if self.validate_provider_form() is False:
@@ -58,11 +54,13 @@ class AdminHandler(base.BaseHandler):
             if self.validate_service_form() is False:
                 self.render('admin.html',self.template_values)
                 return
+
             new_key = self.record_service()
             service = self.request.get('service')
             record_type = 'service'
         else:
             self.template_values['post_result'] = 'Unknown action'
+        action_done = self.request.get('action_done')
         self.redirect('/view?key='+ new_key.urlsafe()+ '&type='+record_type+'&action_done='+action_done)
 
     def record_designation(self):
@@ -116,23 +114,40 @@ class AdminHandler(base.BaseHandler):
     def validate_designation_form(self):
         """
         Checks for empty form field in add designation form and appends error messages for rendering as necessary.
+        Also checks and rejects entry if designation already exists in database.
         """
         e_messages = []
         valid = True
         if not self.request.get('designation') or self.request.get('designation') is None or self.request.get('designation')=='':
             e_messages.append('You did not enter a designation to add.')
             valid = False
+        else: #check for duplicate already in database
+            for d in self.curr_designations:
+                if self.request.get('designation') == d['name']:
+                    e_messages.append('The designation you are trying to add already exists in the database.')
+                    valid = False
+                    break
         self.template_values['error_messages'] = e_messages
         return valid
 
     def validate_service_form(self):
         """
         Checks for empty form field in add service form and appends error messages for rendering as necessary.
+        Also checks and rejects entry if service already exists in database.
         """
         e_messages = []
         valid = True
         if not self.request.get('service') or self.request.get('service') is None or self.request.get('service')=='':
             e_messages.append('You did not enter a service to add.')
             valid = False
+        else: #check for duplicate already in database
+            for s in self.curr_services:
+                if self.request.get('service') == s['name']:
+                    e_messages.append('The service you are trying to add already exists in the database.')
+                    valid = False
+                    break
         self.template_values['error_messages'] = e_messages
         return valid
+
+
+        all_services = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).order(Entity.Service.name).fetch()]

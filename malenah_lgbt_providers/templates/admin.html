@@ -36,22 +36,22 @@
 <input type="hidden" name="action_done" value="added">
   <fieldset id="add-provider-fieldset"><legend id="add-provider-legend">Add Healthcare Provider</legend>
   <label for="fname">First Name </label><br>
-  <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus><br>
+  <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus required><br>
 
   <label for="lname">Last Name</label><br>
-  <input type="text" name="last_name" id="lname" placeholder="Last Name"><br>
+  <input type="text" name="last_name" id="lname" placeholder="Last Name" required><br>
 
   <label for="phone">Phone</label><br>
-  <input type="tel" name="phone" id="phone" placeholder="1234567890"><br>
+  <input type="tel" name="phone" id="phone" placeholder="1234567890" required><br>
 
   <label for="email">Email</label><br>
-  <input type="email" name="email" id="email" placeholder="you@example.com"><br>
+  <input type="email" name="email" id="email" placeholder="you@example.com" required><br>
 
   <label for="website">Website URL</label><br>
   <input type="url" name="website" id="website" value="http://"><br>
 
   <label for="best-time">Best time of day to contact you</label><br>
-  <input type="time" name="best_time"><br>
+  <input type="time" name="best_time" required><br>
 
   <fieldset>
     <legend>Designation</legend>
@@ -75,8 +75,8 @@
 
   <fieldset>
     <legend>Currently accepting patients</legend>
-      <input type="radio" name="accept_new_patients" id="accept" value="True"><label for="accept">Yes</label><br>
-      <input type="radio" name="accept_new_patients" id="accept" value="False"><label for="accept">No</label><br>
+      <input type="radio" name="accept_new_patients" id="accept" value="True"><label for="accept" required>Yes</label><br>
+      <input type="radio" name="accept_new_patients" id="accept" value="False"><label for="accept" required>No</label><br>
   </fieldset>
   <input type="submit" value="Add Provider" class="submitButton">
 </form>
@@ -88,7 +88,7 @@
   <fieldset id="add-designation-fieldset"><legend id="add-designation-legend">Add a Designation</legend>
     <input type="hidden" name="action" value="add_designation">
     <label for="desig">Designation (e.g. MD, DMD, RN, Pharm.D, R.Ph, Ph.D, B.Sc, other)</label><br>
-    <input type="text" name="designation" id="desig" placeholder="Designation (e.g. MD, DMD, RN, BSc)"><br>
+    <input type="text" name="designation" id="desig" placeholder="Designation (e.g. MD, DMD, RN, BSc)" required><br>
     <input type="submit" value="Add Designation">
   </fieldset>
 </form>
@@ -100,7 +100,7 @@
   <fieldset id="add-service-fieldset"><legend id="add-service-legend">Add a Service</legend>
     <input type="hidden" name="action" value="add_service">
     <label for="serv">Healthcare Service (e.g. Counselling, Dental Care) </label><br>
-    <input type="text" name="service" id="serv" placeholder="Service"><br>
+    <input type="text" name="service" id="serv" placeholder="Service" required><br>
     <input type="submit" value="Add Service">
   </fieldset>
 </form>
