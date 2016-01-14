@@ -3,7 +3,7 @@
 {% block err %}
   {% if error_messages %}
     <section class="err">
-      <h3>Form submission is unsuccessful for the following reason(s):</h3>
+      <h3>Unable to add record for the following reason(s):</h3>
       <ul>
         {%for e in error_messages %}
         <li>{{e}}</li>

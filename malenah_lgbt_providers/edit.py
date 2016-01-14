@@ -15,6 +15,7 @@ class EditHandler(base.BaseHandler):
             }
 
     def get(self):
+        
         t = {}
         t['type'] = self.request.get('type')
         self.template_values['record_type'] = t

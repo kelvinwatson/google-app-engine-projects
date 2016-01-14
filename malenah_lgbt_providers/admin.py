@@ -25,7 +25,6 @@ class AdminHandler(base.BaseHandler):
 
     def post(self):
         action = self.request.get('action')
-        #all form fields completed
         if action=='add_provider':
             if self.validate_provider_form() is False:
                 self.render('admin.html',self.template_values)
@@ -54,7 +53,6 @@ class AdminHandler(base.BaseHandler):
             if self.validate_service_form() is False:
                 self.render('admin.html',self.template_values)
                 return
-
             new_key = self.record_service()
             service = self.request.get('service')
             record_type = 'service'
@@ -148,6 +146,3 @@ class AdminHandler(base.BaseHandler):
                     break
         self.template_values['error_messages'] = e_messages
         return valid
-
-
-        all_services = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).order(Entity.Service.name).fetch()]
