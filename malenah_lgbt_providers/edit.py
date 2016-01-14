@@ -19,8 +19,12 @@ class EditHandler(base.BaseHandler):
             t = {}
             t['type'] = self.request.get('type')
             self.template_values['record_type'] = t
-            k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
-            e = k.get()
+            try:
+                k = ndb.Key(urlsafe=self.request.get('key')) #get key string and construct key
+                e = k.get()
+            except (TypeError, AttributeError) as ex:
+                k = e = None
+                self.redirect('/admin')
             self.template_values['entity_key'] = k.urlsafe()
             if t['type']=='healthcare_provider':
                 t['name']='Healthcare Provider'
@@ -33,8 +37,15 @@ class EditHandler(base.BaseHandler):
                 self.template_values['best_time'] = e.best_time.strftime("%H:%M")
                 console.log(self.template_values['best_time'])
                 #hour=e.best_time.strftime("%H") #extract hour #minute=e.best_time.strftime("%M") #extract minute #meridien = 'AM' #console.log(hour) #console.log(minute)
-                self.template_values['my_designation'] = ndb.Key(urlsafe=e.designation).get().name #e.designation == key, use .get() to get entity, and .name to get the entity's name property
-                self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
+                if e.designation is None or e.designation=='' or ndb.Key(urlsafe=e.designation).get() is None:
+                    console.log('empty designation!')#(ndb.Key(urlsafe=e.designation).get().name)
+                    self.template_values['designation'] = ''             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
+                else:
+                    self.template_values['my_designation'] = ndb.Key(urlsafe=e.designation).get().name #e.designation == key, use .get() to get entity, and .name to get the entity's name property
+                try:
+                    self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key
+                except (TypeError, AttributeError) as ex:
+                    self.template_values['my_services'] = None
             elif t['type']=='designation':
                 t['name']='Designation'
                 self.template_values['designation'] = e.name

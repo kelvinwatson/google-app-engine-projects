@@ -35,6 +35,7 @@
     <th>Preferred Contact Time</th>
     <th>Designation</th>
     <th>Services</th>
+    <th>Accepting Patients</th>
   </tr>
   {% for p in all_providers %}
   <tr>
@@ -55,6 +56,7 @@
       </ul>
     {%endif%}
     </td>
+    <td>{{p.accept_new_patients}}</td>
   </tr>
   {% endfor %}</table>
 {% endif %}

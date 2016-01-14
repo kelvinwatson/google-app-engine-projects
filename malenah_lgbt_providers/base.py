@@ -39,9 +39,12 @@ class BaseHandler(webapp2.RequestHandler):
                 'best_time':e.best_time.strftime("%I:%M %p"),
                 'designation':d,
                 'services':s,
+                'accept_new_patients':e.accept_new_patients,
                 'key':e.key.urlsafe()
                 }
             all_providers.append(obj)
+            console.log("WEL??")
+            console.log(e.accept_new_patients)
         return all_providers
 
     def get_all_designations(self):

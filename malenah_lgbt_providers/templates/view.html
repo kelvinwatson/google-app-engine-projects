@@ -43,6 +43,12 @@
       </ul>
     </td>
   </tr>
+  <tr>
+    <td>Accepting Patients:</td>
+    <td>{{ accept_new_patients }}</td>
+  </tr>
+
+
   {% elif record_type.type|string() == "designation"|string() %}
   <tr>
     <th>Designation:</th>
