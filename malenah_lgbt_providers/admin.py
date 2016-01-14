@@ -8,8 +8,6 @@ from google.appengine.ext import ndb
 class AdminHandler(base.BaseHandler):
     def __init__(self, request, response):
         self.initialize(request,response)
-        console.log(self.get_all_providers())
-        #console.log(datetime.now().time())
         self.template_values = {
             'title': "MALENAH Administrator Portal",
             'header_title': "Welcome to the M.A.L.E.N.A.H. Administrator Portal",
@@ -17,17 +15,25 @@ class AdminHandler(base.BaseHandler):
             'all_providers': self.get_all_providers(),
             'all_designations': self.get_all_designations(),
             'all_services':self.get_all_services(),
+            'error_messages': None,
             }
 
     def get(self):
-        self.render('admin.html', self.template_values) #call the overridden render (above)
+        self.render('admin.html', self.template_values)
 
     def post(self):
         action = self.request.get('action')
+
+
+
+
         action_done = self.request.get('action_done')
 
-        #self.template_values['action_done'] = 'added'
+        #all form fields completed
         if action=='add_provider':
+            if self.validate_provider_form() is False:
+                self.render('admin.html',self.template_values)
+                return
             k = ndb.Key(Entity.Provider, self.app.config.get('malenah-providers')) #create key
             provider = Entity.Provider(parent=k)
             provider.first_name = self.request.get('first_name')
@@ -36,35 +42,97 @@ class AdminHandler(base.BaseHandler):
             provider.email = self.request.get('email')
             provider.website = self.request.get('website')
             provider.best_time = datetime.strptime(self.request.get('best_time'), "%H:%M").time()
-            provider.designation = self.request.get('designation') #self.request.get('designation') is a urlsafe KEY
+            provider.designation = self.request.get('my_designation') #self.request.get('designation') is a urlsafe KEY
             provider.services = [ndb.Key(urlsafe=x) for x in self.request.get_all('services[]')]
             provider.accept_new_patients = True if (self.request.get('accept-new-patients') == "True") else False
             new_key = provider.put()
             record_type = 'healthcare_provider'
-            #self.template_values['post_result'] = 'Healthcare Provider '+provider.first_name+' '+provider.last_name+' successfully added'
         elif action=='add_designation':
+            if self.validate_designation_form() is False:
+                self.render('admin.html',self.template_values)
+                return
             new_key = self.record_designation()
             designation = self.request.get('designation')
-            #self.template_values['post_result'] = 'Designation "'+designation+'" successfully added'
             record_type = 'designation'
         elif action=='add_service':
+            if self.validate_service_form() is False:
+                self.render('admin.html',self.template_values)
+                return
             new_key = self.record_service()
             service = self.request.get('service')
-            #self.template_values['post_result'] = service+' service successfully added'
             record_type = 'service'
         else:
             self.template_values['post_result'] = 'Unknown action'
         self.redirect('/view?key='+ new_key.urlsafe()+ '&type='+record_type+'&action_done='+action_done)
 
     def record_designation(self):
+        """
+        Creates a new designation entity and stores it in the database.
+        """
         k = ndb.Key(Entity.Designation, self.app.config.get('malenah-providers'))
         designation = Entity.Designation(parent=k)
         designation.name = self.request.get('designation')
         return designation.put()
 
     def record_service(self):
+        """
+        Creates a new service entity and stores it in the database.
+        """
         k=ndb.Key(Entity.Service, self.app.config.get('malenah-providers')) #create a Service key
-        console.log(k)
         service=Entity.Service(parent=k) #create an entity with parent as the malenah-providers group key
         service.name = self.request.get('service')
         return service.put()
+
+    def validate_provider_form(self):
+        """
+        Checks for empty form fields in add provider form and appends error messages for rendering as necessary.
+        """
+        e_messages = []
+        valid = True
+        if not self.request.get('first_name') or self.request.get('first_name') is None or self.request.get('first_name')=='':
+            e_messages.append('You did not enter a first name.')
+            valid = False
+        if not self.request.get('last_name') or self.request.get('last_name')=="" or self.request.get('last_name') is None:
+            e_messages.append('You did not enter a last name.')
+            valid = False
+        if not self.request.get('phone') or self.request.get('phone')=="" or self.request.get('phone') is None:
+            e_messages.append('You did not enter a phone number.')
+            valid = False
+        if not self.request.get('email') or self.request.get('email')=="" or self.request.get('email') is None:
+            e_messages.append('You did not enter an email.')
+            valid = False
+        if not self.request.get('website') or self.request.get('website')=="" or self.request.get('website') is None:
+            e_messages.append('You did not enter a website.')
+            valid = False
+        if not self.request.get('best_time') or self.request.get('best_time')=="" or self.request.get('best_time') is None:
+            e_messages.append('You did not enter a contact time.')
+            valid = False
+        if not self.request.get('accept_new_patients') or self.request.get('accept_new_patients')=="" or self.request.get('accept_new_patients') is None:
+            e_messages.append('You did not enter whether or not new patients are being accepted.')
+            valid = False
+        self.template_values['error_messages'] = e_messages
+        return valid
+
+    def validate_designation_form(self):
+        """
+        Checks for empty form field in add designation form and appends error messages for rendering as necessary.
+        """
+        e_messages = []
+        valid = True
+        if not self.request.get('designation') or self.request.get('designation') is None or self.request.get('designation')=='':
+            e_messages.append('You did not enter a designation to add.')
+            valid = False
+        self.template_values['error_messages'] = e_messages
+        return valid
+
+    def validate_service_form(self):
+        """
+        Checks for empty form field in add service form and appends error messages for rendering as necessary.
+        """
+        e_messages = []
+        valid = True
+        if not self.request.get('service') or self.request.get('service') is None or self.request.get('service')=='':
+            e_messages.append('You did not enter a service to add.')
+            valid = False
+        self.template_values['error_messages'] = e_messages
+        return valid

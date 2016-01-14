@@ -24,11 +24,11 @@ class BaseHandler(webapp2.RequestHandler):
         for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch():
             try:
                 d = ndb.Key(urlsafe=e.designation).get().name
-            except TypeError:
+            except (TypeError, AttributeError) as ex:
                 d = None
             try:
                 s = [{'name':k.get().name} for k in e.services]
-            except TypeError:
+            except (TypeError, AttributeError) as ex:
                 s = None
             obj = {
                 'first_name':e.first_name,

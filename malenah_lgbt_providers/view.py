@@ -47,6 +47,11 @@ class ViewHandler(base.BaseHandler):
             self.template_values['service'] = e.name
         else:
             console.log("wrong type")
+        console.log('performing retrieval again in GET')
+        self.template_values['all_providers'] =  self.get_all_providers()
+        self.template_values['all_designations'] = self.get_all_designations()
+        self.template_values['all_services'] =  self.get_all_services()
+
         base.BaseHandler.render(self, 'view.html', self.template_values) #call the overridden render (above)
 
     def post(self):
@@ -84,4 +89,8 @@ class ViewHandler(base.BaseHandler):
             self.template_values['service'] = e.name
         else:
             console.log("wrong type")
+        console.log('performing retrieval again in POST')
+        self.template_values['all_providers'] =  self.get_all_providers()
+        self.template_values['all_designations'] = self.get_all_designations()
+        self.template_values['all_services'] =  self.get_all_services()
         base.BaseHandler.render(self, 'view.html', self.template_values) #call the overridden render (above)

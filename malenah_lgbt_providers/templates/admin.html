@@ -1,4 +1,20 @@
 {% extends "index.html" %}
+
+{% block err %}
+  {% if error_messages %}
+    <section class="err">
+      <h3>Form submission is unsuccessful for the following reason(s):</h3>
+      <ul>
+        {%for e in error_messages %}
+        <li>{{e}}</li>
+        {%endfor%}
+      </ul>
+    </section>
+  {%endif%}
+{% endblock %}
+
+
+
 {% block content %}
 
 <details>
@@ -20,16 +36,16 @@
 <input type="hidden" name="action_done" value="added">
   <fieldset id="add-provider-fieldset"><legend id="add-provider-legend">Add Healthcare Provider</legend>
   <label for="fname">First Name </label><br>
-  <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus required><br>
+  <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus><br>
 
   <label for="lname">Last Name</label><br>
-  <input type="text" name="last_name" id="lname" placeholder="Last Name" required><br>
+  <input type="text" name="last_name" id="lname" placeholder="Last Name"><br>
 
   <label for="phone">Phone</label><br>
-  <input type="tel" name="phone" id="phone" placeholder="1234567890" required><br>
+  <input type="tel" name="phone" id="phone" placeholder="1234567890"><br>
 
   <label for="email">Email</label><br>
-  <input type="email" name="email" id="email" placeholder="you@example.com" required><br>
+  <input type="email" name="email" id="email" placeholder="you@example.com"><br>
 
   <label for="website">Website URL</label><br>
   <input type="url" name="website" id="website" value="http://"><br>
@@ -42,7 +58,7 @@
     {% if all_designations|length>0 %}
       {% for d in all_designations %}
         <!--d.key must a urlsafe-->
-        <input type="radio" name="designation" id="desig" value="{{d.key}}"><label for="desig">{{d.name}}</label><br>
+        <input type="radio" name="my_designation" id="desig" value="{{d.key}}"><label for="desig">{{d.name}}</label><br>
       {% endfor %}
     {% endif %}
   </fieldset>
@@ -59,8 +75,8 @@
 
   <fieldset>
     <legend>Currently accepting patients</legend>
-      <input type="radio" name="accept_new_patients" id="accept" value="True" required><label for="accept">Yes</label><br>
-      <input type="radio" name="accept_new_patients" id="accept" value="False" required><label for="accept">No</label><br>
+      <input type="radio" name="accept_new_patients" id="accept" value="True"><label for="accept">Yes</label><br>
+      <input type="radio" name="accept_new_patients" id="accept" value="False"><label for="accept">No</label><br>
   </fieldset>
   <input type="submit" value="Add Provider" class="submitButton">
 </form>

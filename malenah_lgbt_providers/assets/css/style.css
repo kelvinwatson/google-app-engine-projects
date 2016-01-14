@@ -33,3 +33,7 @@ html {
   background-color:#43C6DB;
   font-weight: bold;
 }
+
+.err{
+  color:red;
+}
