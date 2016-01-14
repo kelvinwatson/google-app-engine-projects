@@ -13,8 +13,8 @@ class MainHandler(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/', a.AdminHandler),
-    ('.*', a.AdminHandler),
     ('/admin', a.AdminHandler),
     ('/edit', e.EditHandler),
     ('/view', v.ViewHandler),
+    ('.*', a.AdminHandler),
 ], debug=True, config=config)

@@ -6,6 +6,9 @@ from datetime import datetime
 from google.appengine.ext import ndb
 
 class AdminHandler(base.BaseHandler):
+    """
+    Administrator portal containing forms for addition(s) to database.
+    """
     def __init__(self, request, response):
         self.initialize(request,response)
         self.curr_services =  self.get_all_services()
@@ -21,9 +24,15 @@ class AdminHandler(base.BaseHandler):
             }
 
     def get(self):
+        """
+        Overrides parent get method. Renders admin.html template.
+        """
         self.render('admin.html', self.template_values)
 
     def post(self):
+        """
+        Overrides parent post method, creates and stores provider entity into database.
+        """
         action = self.request.get('action')
         if action=='add_provider':
             if self.validate_provider_form() is False:
