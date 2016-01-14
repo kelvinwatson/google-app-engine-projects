@@ -36,7 +36,7 @@ class BaseHandler(webapp2.RequestHandler):
                 'phone':e.phone,
                 'email':e.email,
                 'website':e.website,
-                'best_time':e.best_time.strftime("%H:%M"),
+                'best_time':e.best_time.strftime("%I:%M %p"),
                 'designation':d,
                 'services':s,
                 'key':e.key.urlsafe()

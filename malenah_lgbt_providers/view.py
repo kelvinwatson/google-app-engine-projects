@@ -6,7 +6,6 @@ from google.appengine.ext import ndb
 
 class ViewHandler(base.BaseHandler):
     def __init__(self, request, response):
-        console.log("INIT!!!")
         self.initialize(request,response)
         self.template_values = {
             'title': "Record Added (MALENAH Administrator Portal)",
@@ -49,7 +48,6 @@ class ViewHandler(base.BaseHandler):
                     self.template_values['service'] = e.name
                 else:
                     console.log("wrong type")
-                console.log('performing retrieval again in GET')
                 self.template_values['all_providers'] =  self.get_all_providers()
                 self.template_values['all_designations'] = self.get_all_designations()
                 self.template_values['all_services'] =  self.get_all_services()
@@ -76,7 +74,7 @@ class ViewHandler(base.BaseHandler):
                 e.email = self.template_values['email'] = self.request.get('email')
                 e.website = self.template_values['website'] = self.request.get('website')
                 e.best_time = datetime.strptime(self.request.get('best_time'), "%H:%M").time()
-                self.template_values['best_time'] = e.best_time.strftime("%H:%M")
+                self.template_values['best_time'] = e.best_time.strftime("%I:%M %p")
                 e.designation = self.request.get('designation')
                 self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
 

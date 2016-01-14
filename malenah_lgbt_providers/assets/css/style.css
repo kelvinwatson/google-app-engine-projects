@@ -37,3 +37,7 @@ html {
 .err{
   color:red;
 }
+
+.highlight{
+  background-color:#FFFF00;
+}

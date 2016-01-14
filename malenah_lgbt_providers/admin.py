@@ -94,16 +94,16 @@ class AdminHandler(base.BaseHandler):
         """
         e_messages = []
         valid = True
-        if not self.request.get('first_name') or self.request.get('first_name') is None or self.request.get('first_name')=='':
+        if not self.request.get('first_name') or self.request.get('first_name') is None or self.request.get('first_name')=='' or self.request.get('first_name').isspace():
             e_messages.append('You did not enter a first name.')
             valid = False
-        if not self.request.get('last_name') or self.request.get('last_name')=="" or self.request.get('last_name') is None:
+        if not self.request.get('last_name') or self.request.get('last_name')=="" or self.request.get('last_name') is None  or self.request.get('last_name').isspace():
             e_messages.append('You did not enter a last name.')
             valid = False
-        if not self.request.get('phone') or self.request.get('phone')=="" or self.request.get('phone') is None:
+        if not self.request.get('phone') or self.request.get('phone')=="" or self.request.get('phone') is None or self.request.get('phone').isspace():
             e_messages.append('You did not enter a phone number.')
             valid = False
-        if not self.request.get('email') or self.request.get('email')=="" or self.request.get('email') is None:
+        if not self.request.get('email') or self.request.get('email')=="" or self.request.get('email') is None or self.request.get('email').isspace():
             e_messages.append('You did not enter an email.')
             valid = False
         if not self.request.get('website') or self.request.get('website')=="" or self.request.get('website') is None:
