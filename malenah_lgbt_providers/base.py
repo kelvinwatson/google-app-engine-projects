@@ -20,6 +20,9 @@ class BaseHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_variables))
 
     def get_all_providers(self):
+        """
+        Retrieves all providers from database
+        """
         all_providers = []
         for e in Entity.Provider.query(ancestor=ndb.Key(Entity.Provider,self.app.config.get('malenah-providers'))).fetch():
             try:
@@ -46,11 +49,15 @@ class BaseHandler(webapp2.RequestHandler):
         return all_providers
 
     def get_all_designations(self):
-        #this step is essential when later extracting these keys from a form
-        #retrieve entities from the database
+        """
+        Retrieves all designations from database
+        """
         all_designations = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Designation.query(ancestor=ndb.Key(Entity.Designation,self.app.config.get('malenah-providers'))).order(Entity.Designation.name).fetch()]
         return all_designations
 
     def get_all_services(self):
+        """
+        Retrieves all services from database
+        """
         all_services = [{'name':entity.name,'key':entity.key.urlsafe()} for entity in Entity.Service.query(ancestor=ndb.Key(Entity.Service,self.app.config.get('malenah-providers'))).order(Entity.Service.name).fetch()]
         return all_services

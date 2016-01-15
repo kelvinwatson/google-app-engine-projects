@@ -34,8 +34,8 @@
 <br>
 <section class="add-provider-form">
 <form action="/" method="post">
-<input type="hidden" name="action" value="add_provider">
-<input type="hidden" name="action_done" value="added">
+  <input type="hidden" name="action" value="add_provider">
+  <input type="hidden" name="action_done" value="added">
   <fieldset id="add-provider-fieldset"><legend id="add-provider-legend">Add Healthcare Provider</legend>
   <label for="fname">First Name </label><br>
   <input type="text" name="first_name" id="fname" placeholder="First Name" autofocus required><br>
@@ -86,7 +86,8 @@
 
 <br>
 <section class="add-designation-form">
-<form action="/admin" method="post">
+<form action="/" method="post">
+  <input type="hidden" name="action_done" value="added">
   <fieldset id="add-designation-fieldset"><legend id="add-designation-legend">Add a Designation</legend>
     <input type="hidden" name="action" value="add_designation">
     <label for="desig">Designation (e.g. MD, DMD, RN, Pharm.D, R.Ph, Ph.D, B.Sc, other)</label><br>
@@ -98,7 +99,8 @@
 
 <br>
 <section class="add-service-form">
-<form action="/admin" method="post">
+<form action="/" method="post">
+  <input type="hidden" name="action_done" value="added">
   <fieldset id="add-service-fieldset"><legend id="add-service-legend">Add a Service</legend>
     <input type="hidden" name="action" value="add_service">
     <label for="serv">Healthcare Service (e.g. Counselling, Dental Care) </label><br>

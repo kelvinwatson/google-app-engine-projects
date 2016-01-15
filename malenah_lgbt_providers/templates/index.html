@@ -56,7 +56,7 @@
       </ul>
     {%endif%}
     </td>
-    <td>{{p.accept_new_patients}}</td>
+    <td>{%if p.accept_new_patients==true%}Yes{%else%}No{%endif%}</td>
   </tr>
   {% endfor %}</table>
 {% endif %}

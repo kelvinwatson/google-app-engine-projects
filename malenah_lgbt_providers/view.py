@@ -39,7 +39,6 @@ class ViewHandler(base.BaseHandler):
                     self.template_values['best_time'] = e.best_time.strftime("%H:%M")
                     #console.log(e.best_time.strftime("%H:%M"))
                     if e.designation is None or e.designation=='' or ndb.Key(urlsafe=e.designation).get() is None:
-                        console.log('empty designation!')#(ndb.Key(urlsafe=e.designation).get().name)
                         self.template_values['designation'] = ''             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
                     else:
                         self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
@@ -61,7 +60,6 @@ class ViewHandler(base.BaseHandler):
                 self.template_values['all_services'] =  self.get_all_services()
                 base.BaseHandler.render(self, 'view.html', self.template_values) #call the overridden render (above)
         else:
-            console.log("redirect GET!")
             self.redirect('/admin')
             return
 
@@ -85,15 +83,17 @@ class ViewHandler(base.BaseHandler):
                 self.template_values['best_time'] = e.best_time.strftime("%I:%M %p")
                 e.designation = self.request.get('designation')
                 self.template_values['my_services'] = [{'name':k.get().name} for k in e.services] #k is a key!
-
                 if e.designation is None or e.designation=='':
-                    console.log('empty designation!')#(ndb.Key(urlsafe=e.designation).get().name)
                     self.template_values['designation'] = ''             #e.designation == key, use .get() to get entity, and .name to get the entity's name property
                 else:
                     self.template_values['designation'] = ndb.Key(urlsafe=e.designation).get().name
                 e.services = [ndb.Key(urlsafe=k) for k in self.request.get_all('services[]')]
+                try:
+                    self.template_values['my_services'] = [{'name':k.get().name} for k in e.services]
+                except (TypeError,AttributeError) as ex:
+                    self.template_values['my_services'] = None #k is a key!
                 e.accept_new_patients = True if (self.request.get('accept_new_patients')=="True") else False
-                console.log('recording='+str(e.accept_new_patients))
+                self.template_values['accept_new_patients'] = e.accept_new_patients
                 e.put()
             elif t['type']=='designation':
                 t['name']='Designation'
@@ -103,7 +103,6 @@ class ViewHandler(base.BaseHandler):
                 self.template_values['service'] = e.name
             else:
                 console.log("wrong type")
-            console.log('performing retrieval again in POST')
             self.template_values['all_providers'] =  self.get_all_providers()
             self.template_values['all_designations'] = self.get_all_designations()
             self.template_values['all_services'] =  self.get_all_services()
