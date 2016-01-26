@@ -1,4 +1,7 @@
 curl --data "first_name=Bekah&last_name=Cohen&designation=DC" --data-urlencode "specializations[]=Sports Chiropractic" --data-urlencode "specializations[]=Motor Vehicle Accidents" --data-urlencode "specializations[]=Work Injuries" --data-urlencode "specializations[]=Queer/Trans Health and Transition-related care" -H "Accept: application/json" http://localhost:8080/provider
+curl --data-urlencode "specializations[]=Ophthalmology" --data-urlencode "specializations[]=Geriatrics"  -H "Accept: application/json" http://localhost:8080/specializations
+curl --data-urlencode "specializations[]=" -H "Accept: application/json" http://localhost:8080/specializations
+curl --data-urlencode "wrongtype[]=" -H "Accept: application/json" http://localhost:8080/specializations
 
 
 

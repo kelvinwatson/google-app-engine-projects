@@ -12,9 +12,21 @@ class SpecializationsHandler(webapp2.RequestHandler):
         #view all specializations as JSON
 
     def post(self, *args, **kwargs): #add a specialization(s)
+
+        if not self.request.get_all('specializations[]'):
+            self.response.set_status(400, '- Invalid input. No specializations[] provided.')
+            self.response.write(self.response.status)
+            return
+
         existing_specializations = [qe.name for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         print(existing_specializations)
 
+        self.response.set_status(200, '- Valid input.')
+
+        obj = {}
+        obj['status'] = self.response.status
+        obj['added'] = []
+        obj['duplicateNotAdded'] = []
         for s in self.request.get_all('specializations[]'):
             if s not in existing_specializations:
                 print('adding'+str(s))
@@ -22,10 +34,15 @@ class SpecializationsHandler(webapp2.RequestHandler):
                 e = E.Specialization(parent=parent_key)
                 e.name = s
                 e.put()
+                obj['added'].append(s)
+            else:
+                obj['duplicateNotAdded'].append(s)
 
         self.response.headers['Content-Type'] = 'application/json'
-        #check to see if specializations already exists in DB
-
-        #add if not
-
         self.response.write(json.dumps(self.request.get_all('specializations[]')))
+        self.response.write(json.dumps(obj))
+
+    #def error(self, code, msg):
+    #    self.response.status = code
+    #    self.response.status_message = msg
+    #    self.response.clear()
