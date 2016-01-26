@@ -2,6 +2,7 @@ import webapp2
 import ProviderHandler as P
 import ReviewHandler as R
 import ReplyHandler as r
+import SpecializationsHandler as S
 
 #WSGIApplication instance routes incoming requests to handlers based on URL
 #TODO: set debug to false before final deploy
@@ -11,9 +12,15 @@ import ReplyHandler as r
 #format is <name:regex>
 #<provider> will match /provider/2/review/3 or /pr/2/review/3
 #<provider:provider> will match only /provider/2/review/3
-#<:provider>will match only /provider/2/review/3 
+#<:provider>will match only /provider/2/review/3
+config = {
+    'M-S': 'malenah-specializations',
+    'M-P': 'malenah-providers'
+    }
+
 
 routes = [
+    webapp2.Route(r'/<:specializations><:/?>', handler=S.SpecializationsHandler, name='specializations-list'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+>/<:reply>/<repid:[0-9]+><:/?>', handler=r.ReplyHandler, name='provider-review-reply'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+>/<:reply><:/?>', handler=r.ReplyHandler, name='provider-review-reply'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+><:/?>', handler=R.ReviewHandler, name='provider-review'),
@@ -27,4 +34,4 @@ routes = [
     webapp2.Route(r'/', handler=P.ProviderHandler, name='provider-list'),
 ]
 
-application = webapp2.WSGIApplication(routes, debug=True)
+application = webapp2.WSGIApplication(routes, debug=True, config=config)
