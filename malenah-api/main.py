@@ -2,7 +2,7 @@ import webapp2
 import ProviderHandler as P
 import ReviewHandler as R
 import ReplyHandler as r
-import SpecializationsHandler as S
+import SpecializationHandler as S
 
 #WSGIApplication instance routes incoming requests to handlers based on URL
 #TODO: set debug to false before final deploy
@@ -20,7 +20,8 @@ config = {
 
 
 routes = [
-    webapp2.Route(r'/<:specializations><:/?>', handler=S.SpecializationsHandler, name='specializations-list'),
+    webapp2.Route(r'/<:specialization>/<sid:[0-9]+><:/?>', handler=S.SpecializationHandler, name='specialization'),
+    webapp2.Route(r'/<:specialization><:/?>', handler=S.SpecializationHandler, name='specialization-list'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+>/<:reply>/<repid:[0-9]+><:/?>', handler=r.ReplyHandler, name='provider-review-reply'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+>/<:reply><:/?>', handler=r.ReplyHandler, name='provider-review-reply'),
     webapp2.Route(r'/<:provider>/<pid:[0-9]+>/<:review>/<revid:[0-9]+><:/?>', handler=R.ReviewHandler, name='provider-review'),

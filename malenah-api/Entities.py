@@ -12,7 +12,7 @@ class Provider(Model):
     designation = ndb.StringProperty(required=True)
     #license_number = ndb.StringProperty(required=True)
     specializations = ndb.StringProperty(repeated=True)
-    phone = ndb.StringProperty(repeated=True)
+    phone = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
     website = ndb.StringProperty()
     accepting_new_patients = ndb.BooleanProperty()
