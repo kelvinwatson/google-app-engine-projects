@@ -18,7 +18,7 @@ class SpecializationHandler(webapp2.RequestHandler):
             self.response.write(self.response.status)
             return
 
-        existing_specializations = [qe.name for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
+        existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         print(existing_specializations)
 
         self.response.set_status(200, '- OK.')
@@ -32,15 +32,19 @@ class SpecializationHandler(webapp2.RequestHandler):
             if s=='':
                 obj['invalid'] = s
             else:
-                if s not in existing_specializations:
-                    print('adding'+str(s))
+                if not any(es['name']==s for es in existing_specializations): #check if designation already in datastore
+                    print('adding '+str(s))
                     parent_key = ndb.Key(E.Specialization, self.app.config.get('M-S')) #use malenah-specializtions as the key id
                     e = E.Specialization(parent=parent_key)
                     e.name = s
-                    e.put()
-                    obj['added'].append(s)
+                    k=e.put()
+                    o={}
+                    o['name'] = s
+                    o['key'] = k.id()
+                    obj['added'].append(o)
                 else:
-                    obj['duplicate'].append(s)
+                    match = next((es for es in existing_specializations if es['name']==s), None) #find the duplicate dictionary
+                    obj['duplicate'].append(match)
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(self.request.get_all('specializations[]')))
