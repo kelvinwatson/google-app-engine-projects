@@ -9,7 +9,8 @@ class ProviderHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
-
+        self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'phone':qe.phone,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
+        print(self.existing_providers)
 
     def get(self, *args, **kwargs):
         '''
@@ -78,25 +79,26 @@ class ProviderHandler(webapp2.RequestHandler):
             'accepting_new_patients': True if (self.request.get('accepting_new_patients')=="True") else False,
           }
         obj={}
-        status_message = self.validate_properties(properties)
-        if 'Invalid input' not in status_message: #check for empty fields
-            e = E.Provider(**properties)
+        status_message = self.validate_input(properties)
+        if 'Invalid' not in status_message: #check for empty fields
+            parent_key = ndb.Key(E.Provider, self.app.config.get('M-P'))
+            e = E.Provider(parent=parent_key)
+            e.populate(**properties)
             e.put()
             obj = e.to_dict()
             self.response.set_status(200, status_message)
             obj['status'] = self.response.status
             self.expand_specializations(obj)
-            self.response.out.write(json.dumps(obj))
         else:
             self.response.clear()
             self.response.set_status(400, status_message)
             obj={}
             obj['status'] = self.response.status
-            self.response.out.write(json.dumps(obj))
+        self.response.out.write(json.dumps(obj))
 
-    def validate_properties(self, obj):
+    def validate_input(self, obj):
         '''
-        Checks for empty properties and invalid health-related specializations in a dictionary
+        Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary
         '''
         if not obj['first_name'] or obj['first_name'] is None or obj['first_name']=='' \
             or not obj['last_name'] or obj['last_name'] is None or obj['last_name']=='' \
@@ -104,12 +106,18 @@ class ProviderHandler(webapp2.RequestHandler):
             or not obj['phone'] or obj['phone'] is None or obj['phone']=='':
             return '- Invalid input: missing properties.'
 
+        #reject duplicate providers
+        if any(ep['first_name']==obj['first_name'] and ep['last_name']==obj['last_name'] and ep['designation']==obj['designation'] and ep['phone']==obj['phone'] for ep in self.existing_providers):
+            return '- Invalid input: provider already exists in database.'
+
         #specialization ID's must exist in database
         #existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         for sid in obj['specializations']:
             if not any(es['key']==int(sid) for es in self.existing_specializations):
                 return '- Invalid input: no specialization with provided id.'
         return '- OK'
+
+
 
     def expand_specializations(self, obj):
         specializations_list = []
