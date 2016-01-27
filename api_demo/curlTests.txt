@@ -1,0 +1,10 @@
+curl --data "nick=wolfordj" -H "Accept: application/json" http://localhost:8080/mod
+
+curl -H "Accept: application/json" http://localhost:8080/mod/4785074604081152
+
+curl --data-urlencode "name=Test Channel" --data-urlencode "topics[]=topic 1" --data-urlencode "topics[]=topic 2" -d "mods[]=5629499534213120" -d "mods[]=5910974510923776" -H "Accept: application/json" http://localhost:8080/channel
+
+curl -X PUT -H "Accept: application/json"
+http://localhost:8080/channel/4573968371548160/mod/5066549580791808
+
+curl --data "nick=wolfordj" -H "Accept: application/json" http://localhost:8080/mod/search
