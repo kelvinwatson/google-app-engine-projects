@@ -12,7 +12,7 @@ class Provider(Model):
     designation = ndb.StringProperty(required=True)
     organization = ndb.StringProperty()
     #license_number = ndb.StringProperty(required=True)
-    specializations = ndb.IntegerProperty(repeated=True)
+    specializations = ndb.KeyProperty(repeated=True)
     phone = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
     website = ndb.StringProperty()
@@ -20,7 +20,7 @@ class Provider(Model):
 
 class Review(Model):
     username = ndb.StringProperty(required=True)
-    rating = ndb.StringProperty(required=True)
+    rating = ndb.FloatProperty(required=True)
     comment = ndb.StringProperty()
     replies = ndb.KeyProperty(repeated=True)
     #user_key = ndb.KeyProperty(kind=User, required=True)
