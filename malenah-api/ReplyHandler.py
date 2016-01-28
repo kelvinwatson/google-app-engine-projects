@@ -115,7 +115,7 @@ class ReplyHandler(webapp2.RequestHandler):
             obj['status'] = self.response.status
         else: #reply id is in kwarg
             match = next((er for er in self.existing_replies if er['key']==int(kwargs['repid'])), None) #
-            if match is not None:
+            if match is not None: #entity exists in database
                 print('do the mod')
                 properties = {
                     'username': self.request.get('username'), #required
@@ -136,7 +136,6 @@ class ReplyHandler(webapp2.RequestHandler):
                     obj = e.to_dict()
                     self.response.set_status(200, status_message)
                     obj['status'] = self.response.status
-                    print(obj)
                     self.expand_review(obj)
                     self.expand_provider(obj) #for json output
                 else:
@@ -145,7 +144,31 @@ class ReplyHandler(webapp2.RequestHandler):
                      obj['status'] = self.response.status
             else:
                  self.response.clear()
-                 self.response.set_status(400, '- Invalid input. No match for reply id.')
+                 self.response.set_status(400, '- Invalid input. Unable to update entity. No match for reply id.')
+                 obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
+        return
+
+    def delete(self, *args, **kwargs):
+        self.response.headers['Content-Type'] = 'application/json'
+        print(args)
+        print(kwargs)
+        obj={}
+        if not kwargs or kwargs is None or 'repid' not in kwargs: #GET /reply or /reply/
+            self.response.clear()
+            self.response.set_status(400, status_message)
+            obj['status'] = self.response.status
+        else: #reply id is in kwarg
+            match = next((er for er in self.existing_replies if er['key']==int(kwargs['repid'])), None) #
+            if match is not None: #entity exists in database
+                obj={}
+                k = ndb.Key(E.Reply, int(kwargs['repid']))
+                k.delete()
+                self.response.set_status(200, '- Delete successful.')
+                obj['status'] = self.response.status
+            else:
+                 self.response.clear()
+                 self.response.set_status(400, '- Invalid input. Unable to delete entity. No match for reply id.')
                  obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
         return
