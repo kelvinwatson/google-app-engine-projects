@@ -3,38 +3,50 @@ import json
 import webapp2
 from google.appengine.ext import ndb
 
-DEBUG = True
-
 class ProviderHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':[k.id() for k in qe.specializations],'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.response.headers['Content-Type'] = 'application/json'
-        print(self.existing_specializations)
 
     def get(self, *args, **kwargs):
         '''
         Retrieves Provider entities based on URI
         '''
-        obj={}
         if not kwargs or kwargs is None: #GET /provider or /provider/
-            if args[0]:
-                if args[0]=='provider':
-                    if self.existing_providers:
-                        self.response.write(json.dumps(self.existing_providers))
-                    else: #self.existing_providers is an empty list
-                        self.response.set_status(200, '- OK. No providers currently in database. ')
-                        obj['status'] = self.response.status
-                        self.response.write(json.dumps(obj))
+            if args:
+                if args[0]:
+                    if args[0]=='provider':
+                        if self.existing_providers:
+                            self.response.write(json.dumps(self.existing_providers))
+                        else: #self.existing_providers is an empty list
+                            self.error_status(200, '- OK. No providers currently in database.')
+            else: #datastore is empty
+                self.error_status(200, '- OK. No providers currently in database.')
         else: #GET /provider/pid or /provider/pid (print only the requested provider)
             print('kwarg!')
             if kwargs['pid']:
                 #search the existing_providers for a match to the provider ID provided
                 match = next((ep for ep in self.existing_providers if ep['key']==int(kwargs['pid'])), None) #find the duplicate dictionary
-                self.response.write(json.dumps(match))
-            #further URI's are handled by review and reply
+                if match:
+                    self.response.write(json.dumps(match))
+                else:
+                    self.error_status(200, '- OK. No providers matching the provided provider id. ')
+            else:
+                self.error_status(200, '- OK. No providers matching the provided provider id. ')
         return
+
+    def error_status(self, code, msg):
+        '''
+        Prints status messages in JSON
+        '''
+        obj={}
+        self.response.clear()
+        self.response.set_status(200, msg)
+        obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
+
 
     def post(self, *args, **kwargs):
         '''

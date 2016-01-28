@@ -10,7 +10,41 @@ class SpecializationHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
 
     def get(self, *args, **kwargs):
-        self.response.write(json.dumps(self.existing_specializations))
+        '''
+        Retrieves Specialization entities based on URI
+        '''
+        if not kwargs or kwargs is None: #GET /provider or /provider/
+            if args:
+                if args[0]:
+                    if args[0]=='specialization':
+                        if self.existing_specializations:
+                            self.response.write(json.dumps(self.existing_specializations))
+                        else: #self.existing_providers is an empty list
+                            self.error_status(200, '- OK. No specializations currently in database.')
+            else: #datastore is empty
+                self.error_status(200, '- OK. No specializations currently in database.')
+        else: #GET /provider/pid or /provider/pid (print only the requested provider)
+            if kwargs['sid']:
+                #search the existing_providers for a match to the provider ID provided
+                match = next((es for es in self.existing_specializations if es['key']==int(kwargs['sid'])), None) #find the duplicate dictionary
+                if match:
+                    self.response.write(json.dumps(match))
+                else:
+                    self.error_status(200, '- OK. No specializations matching the provided specialization id. ')
+            else:
+                self.error_status(200, '- OK. No specializations matching the provided specialization id. ')
+        return
+
+    def error_status(self, code, msg):
+        '''
+        Prints status messages in JSON
+        '''
+        obj={}
+        self.response.clear()
+        self.response.set_status(200, msg)
+        obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
+
 
     def post(self, *args, **kwargs): #add a specialization(s)
         if not self.request.get_all('specializations[]') or self.request.get_all('specializations[]') is None or self.request.get_all('specializations[]')=='':
