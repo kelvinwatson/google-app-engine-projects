@@ -30,7 +30,8 @@ class Reply(Model):
     username = ndb.StringProperty(required=True)
     comment = ndb.StringProperty()
     #user_key = ndb.KeyProperty(kind=User, required=True)
-    provider_key = ndb.KeyProperty(kind=Provider, required=True)
+    review = ndb.KeyProperty(kind=Review, required=True)
+    provider = ndb.KeyProperty(kind=Provider, required=True)
 
 class Specialization(Model):
     name = ndb.StringProperty(required=True)

@@ -9,39 +9,56 @@ class ReviewHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
         self.initialize(request,response)
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':qe.specializations,'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
-        self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id()} for qe in E.Review.query()]
+        self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
         print(self.existing_reviews)
 
     def get(self, *args, **kwargs):
         self.response.headers['Content-Type'] = 'application/json'
+        print(args)
+        print(kwargs)
+
+        obj={}
         if not kwargs or kwargs is None: #GET /review or /review/
             if args[0]:
                 if args[0]=='review':
-                    self.response.write(json.dumps(self.existing_reviews))
-        else: #GET /provider/pid or /provider/pid (print only the requested provider)
-            print('kwarg!')
-            if kwargs['pid']:
+                    if self.existing_reviews:
+                        self.response.write(json.dumps(self.existing_reviews))
+                    else: #self.existing_reviews is an empty list
+                        self.response.set_status(200, '- OK. No reviews currently in database. ')
+                        obj['status'] = self.response.status
+                        self.response.write(json.dumps(obj))
+        else: #GET /provider/pid/review or /provider/pid/review
+            if 'revid' in kwargs: #review/revid or review/revid/ or provider/pid/review/revid
+                print('revid!')
+                review_match = next((er for er in self.existing_reviews if er['key']==int(kwargs['revid'])),None)
+                if review_match is not None:
+                    self.response.write(json.dumps(review_match))
+                else:
+                    self.response.clear()
+                    self.response.set_status(400, '- Invalid')
+                    obj['status'] = self.response.status
+                    self.response.write(json.dumps(obj))
+            elif 'pid' in kwargs: #GET /provider/pid/review or /provider/pid/review/
                 #search the existing_providers for a match to the provider ID provided
+                print('pid!')
                 provider_match = next((ep for ep in self.existing_providers if ep['key']==int(kwargs['pid'])), None) #find the duplicate dictionary
                 if provider_match is not None:
-                    review_matches = [(er if er['provider']==int(kwargs['pid']) else None) for er in self.existing_reviews]
-                    self.response.write(json.dumps(review_matches))
-
-
-    def expand_specializations(self, obj):
-        specializations_list = []
-        for k in obj['specializations']:
-            o={}
-            match = next((es for es in self.existing_specializations if es['key']==int(k.id())), None) #find the duplicate dictionary
-            o['name']=match['name']
-            o['key']=int(k.id())
-            specializations_list.append(o)
-        obj['specializations'] = specializations_list
+                    review_matches = [er for er in self.existing_reviews if er['provider']==int(kwargs['pid'])]
+                    if review_matches:
+                        self.response.write(json.dumps(review_matches))
+                    else:
+                        self.response.clear()
+                        self.response.set_status(400, '- Invalid. No matches for the provided review id. ')
+                        obj['status'] = self.response.status
+                        self.response.write(json.dumps(obj))
+                else: #no provider match
+                    self.response.clear()
+                    self.response.set_status(400, '- Invalid. No matches for the provided provider id. ')
+                    obj['status'] = self.response.status
+                    self.response.write(json.dumps(obj))
+        return
 
     def post(self, *args, **kwargs):
-        # if DEBUG:
-        #     print('args: '+str(args)+ ' type(args): '+str(type(args))+'\n') #TUPLE
-        #     print('kwargs: '+str(kwargs)+ ' type(kwargs): '+str(type(kwargs))+'\n') #DICT
         self.response.headers['Content-Type'] = 'application/json'
         properties = {
             'username': self.request.get('username'), #required
@@ -107,3 +124,13 @@ class ReviewHandler(webapp2.RequestHandler):
         o['last_name']=match['last_name']
         o['key']=match['key']
         obj['provider'] = o
+
+    def expand_specializations(self, obj):
+        specializations_list = []
+        for k in obj['specializations']:
+            o={}
+            match = next((es for es in self.existing_specializations if es['key']==int(k.id())), None) #find the duplicate dictionary
+            o['name']=match['name']
+            o['key']=int(k.id())
+            specializations_list.append(o)
+        obj['specializations'] = specializations_list

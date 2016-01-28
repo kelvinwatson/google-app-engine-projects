@@ -17,18 +17,16 @@ class ProviderHandler(webapp2.RequestHandler):
         Retrieves Provider entities based on URI
         '''
         self.response.headers['Content-Type'] = 'application/json'
-
-        #if(DEBUG):
-            #print('args: '+str(args)+'\n')
-            #print('kwargs: '+str(kwargs))
-            #print type(args) #type TUPLE
-            #print type(kwargs) #type DICT
-
+        obj={}
         if not kwargs or kwargs is None: #GET /provider or /provider/
             if args[0]:
                 if args[0]=='provider':
-                    print('no kwargs, args only, provider only') #GET: /provider or provider/ (print all providers)
-                    self.response.write(json.dumps(self.existing_providers))
+                    if self.existing_providers:
+                        self.response.write(json.dumps(self.existing_providers))
+                    else: #self.existing_providers is an empty list
+                        self.response.set_status(200, '- OK. No providers currently in database. ')
+                        obj['status'] = self.response.status
+                        self.response.write(json.dumps(obj))
         else: #GET /provider/pid or /provider/pid (print only the requested provider)
             print('kwarg!')
             if kwargs['pid']:
@@ -36,7 +34,7 @@ class ProviderHandler(webapp2.RequestHandler):
                 match = next((ep for ep in self.existing_providers if ep['key']==int(kwargs['pid'])), None) #find the duplicate dictionary
                 self.response.write(json.dumps(match))
             #further URI's are handled by review and reply
-
+        return
 
     def post(self, *args, **kwargs):
         '''
@@ -107,8 +105,6 @@ class ProviderHandler(webapp2.RequestHandler):
                 specializations.append(k)
         obj['specializations'] = specializations #save the converted keys
         return '- OK'
-
-
 
     def expand_specializations(self, obj):
         specializations_list = []
