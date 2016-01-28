@@ -10,8 +10,7 @@ class ProviderHandler(webapp2.RequestHandler):
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':[k.id() for k in qe.specializations],'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
-
-        print(self.existing_providers)
+        #print(self.existing_providers)
 
     def get(self, *args, **kwargs):
         '''
@@ -75,9 +74,9 @@ class ProviderHandler(webapp2.RequestHandler):
         else:
             self.response.clear()
             self.response.set_status(400, status_message)
-            obj={}
             obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
+        return
 
     def validate_input(self, obj):
         '''

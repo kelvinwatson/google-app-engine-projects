@@ -24,13 +24,11 @@ class Review(Model):
     comment = ndb.StringProperty()
     replies = ndb.KeyProperty(repeated=True)
     #user_key = ndb.KeyProperty(kind=User, required=True)
-    provider_key = ndb.KeyProperty(kind=Provider, required=True)
+    provider = ndb.KeyProperty(kind=Provider, required=True)
 
-class Review(Model):
+class Reply(Model):
     username = ndb.StringProperty(required=True)
-    rating = ndb.StringProperty(required=True)
     comment = ndb.StringProperty()
-    replies = ndb.KeyProperty(repeated=True)
     #user_key = ndb.KeyProperty(kind=User, required=True)
     provider_key = ndb.KeyProperty(kind=Provider, required=True)
 
