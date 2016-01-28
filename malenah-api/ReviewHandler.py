@@ -10,10 +10,10 @@ class ReviewHandler(webapp2.RequestHandler):
         self.initialize(request,response)
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':qe.specializations,'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
+        self.response.headers['Content-Type'] = 'application/json'
         print(self.existing_reviews)
 
     def get(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
         print(args)
         print(kwargs)
 
@@ -59,18 +59,16 @@ class ReviewHandler(webapp2.RequestHandler):
         return
 
     def post(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
         properties = {
             'username': self.request.get('username'), #required
             'rating': self.request.get('rating'),     #required
             'comment': self.request.get('comment'),
-            'replies': self.request.get_all('replies[]'),
-            'provider':self.request.get('provider_key'), #required (int id)
+            'replies': [], #when review is first posted, it does not have replies
+            'provider':self.request.get('provider'), #required (int id)
           }
-        status_message = self.validate_input(properties)
+        status_message = self.validate_input_post(properties)
         print(status_message)
         print(properties)
-        print type(properties['rating'])
         obj={}
         if 'Invalid' not in status_message: #check for empty fields
             #no parent key needed as each Review entity should be in its own entity group
@@ -88,7 +86,7 @@ class ReviewHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(obj))
         return
 
-    def validate_input(self, obj):
+    def validate_input_post(self, obj):
         '''
         Checks for empty properties, and invalid health-care providers
         '''
@@ -117,6 +115,85 @@ class ReviewHandler(webapp2.RequestHandler):
         obj['provider'] =  ndb.Key(E.Provider, pid_int)
         return '- OK'
 
+    def validate_input_put(self, obj):
+        '''
+        Checks for empty properties, and invalid health-care providers
+        '''
+        if not obj['rating'] or obj['rating'] is None or obj['rating']=='':
+            return '- Invalid input: missing rating.'
+
+        #sanitize rating
+        rating_float = None
+        try:
+            rating_float = float(obj['rating'])
+        except ValueError:
+            return '- Invalid input: rating must be a valid number between 0 and 5.0 (e.g. 1, 2.5, 4.8).'
+        if rating_float < 0 or rating_float > 5.0:
+            return '- Invalid input: rating must be valid number between 0 and 5.0 (e.g. 1, 2.5, 4.8).'
+        obj['rating'] = rating_float
+
+        return '- OK'
+
+    def put(self, *args, **kwargs):
+        print(args)
+        print(kwargs)
+        obj={}
+        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /reply or /reply/
+            self.response.clear()
+            self.response.set_status(400, '- Invalid. No review id provided.')
+            obj['status'] = self.response.status
+        else: #reply id is in kwarg
+            match = next((er for er in self.existing_reviews if er['key']==int(kwargs['revid'])), None) #
+            if match is not None: #entity exists in database
+                properties = {
+                    #'username': self.request.get('username'), #cannot alter existing username
+                    'rating': self.request.get('rating'),     #required
+                    'comment': self.request.get('comment'),
+                    #'replies': self.request.get_all('replies[]'), cannot alter existing replies, must remain same
+                    #'provider':self.request.get('provider_key'), #cannot alter existing provider, must remain same
+                  }
+                status_message = self.validate_input_put(properties)
+                obj={}
+                if 'Invalid' not in status_message: #check for empty or invalid fields
+                    e = E.Review.get_by_id(int(kwargs['revid']))
+                    e.populate(**properties)
+                    e.put()
+                    obj = e.to_dict()
+                    self.response.set_status(200, status_message)
+                    obj['status'] = self.response.status
+                    self.expand_provider(obj) #for json output
+                else:
+                     self.response.clear()
+                     self.response.set_status(400, status_message)
+                     obj['status'] = self.response.status
+            else:
+                 self.response.clear()
+                 self.response.set_status(400, '- Invalid input. Unable to update entity. No match for review id.')
+                 obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
+        return
+
+
+    def delete(self, *args, **kwargs):
+        obj={}
+        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /reply or /reply/
+            self.response.clear()
+            self.response.set_status(400, '-Invalid. No review id provided.')
+            obj['status'] = self.response.status
+        else: #reply id is in kwarg
+            match = next((er for er in self.existing_reviews if er['key']==int(kwargs['revid'])), None) #
+            if match is not None: #entity exists in database
+                print(match)
+                E.Review.get_by_id(int(kwargs['revid'])).key.delete()
+                self.response.set_status(200, '- Delete review successful.')
+                obj['status'] = self.response.status
+            else:
+                 self.response.clear()
+                 self.response.set_status(400, '- Invalid input. Unable to delete entity. No match for review id.')
+                 obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
+        return
+
     def expand_provider(self, obj):
         o={}
         match = next((ep for ep in self.existing_providers if ep['key']==obj['provider'].id()), None) #find the duplicate dictionary
@@ -124,13 +201,3 @@ class ReviewHandler(webapp2.RequestHandler):
         o['last_name']=match['last_name']
         o['key']=match['key']
         obj['provider'] = o
-
-    def expand_specializations(self, obj):
-        specializations_list = []
-        for k in obj['specializations']:
-            o={}
-            match = next((es for es in self.existing_specializations if es['key']==int(k.id())), None) #find the duplicate dictionary
-            o['name']=match['name']
-            o['key']=int(k.id())
-            specializations_list.append(o)
-        obj['specializations'] = specializations_list

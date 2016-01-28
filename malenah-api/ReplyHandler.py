@@ -9,13 +9,11 @@ class ReplyHandler(webapp2.RequestHandler):
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':qe.specializations,'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
         self.existing_replies = [{'username':qe.username,'comment':qe.comment,'review':qe.review.id(),'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Reply.query()]
+        self.response.headers['Content-Type'] = 'application/json'
         #print(self.existing_replies)
 
 
     def get(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
-        #print('GET Reply Handler\n')
-
         obj={}
         if not kwargs or kwargs is None: #GET /reply or /reply/
             if args[0]:
@@ -30,34 +28,47 @@ class ReplyHandler(webapp2.RequestHandler):
             if 'repid' in kwargs:
                 print('there is a repid so only show that reply')
             elif 'revid' in kwargs:
-                print('there is a revid so show all replies to that review')
+                print('there is a revid so show all replies to that review'+str(int(kwargs['revid'])))
+                #perform ancestory query
+                qrep=E.Reply.query(ancestor=ndb.Key(E.Review, int(kwargs['revid'])))
+                replies = []
+                for q in qrep:
+                    print(q)
+                    obj={
+                        'username': q.username,
+                        'comment': q.comment,
+                        'review': q.review.integer_id(),
+                        'provider': q.provider.integer_id(),
+                    }
+                    replies.append(obj)
+                self.response.write(json.dumps(replies))
 
     def post(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
         properties = {
             'username': self.request.get('username'), #required
             'comment': self.request.get('comment'),
             'review': self.request.get('review'),
-            'provider': self.request.get('provider_key'), #required (int id)
+            'provider': self.request.get('provider'), #required (int id)
           }
         print(properties)
         status_message = self.validate_input(properties)
         print(status_message)
         obj={}
         if 'Invalid' not in status_message: #check for empty fields
-             #no parent key needed as each Review entity should be in its own entity group
-             e = E.Reply(**properties)
-             e.put()
-             obj = e.to_dict()
-             self.response.set_status(200, status_message)
-             obj['status'] = self.response.status
-             print(obj)
-             self.expand_review(obj)
-             self.expand_provider(obj) #for json output
+            parent_key = properties['review']
+            e = E.Reply(parent=parent_key)
+            e.populate(**properties)
+            e.put()
+            obj = e.to_dict()
+            self.response.set_status(200, status_message)
+            obj['status'] = self.response.status
+            print(obj)
+            self.expand_review(obj)
+            self.expand_provider(obj) #for json output
         else:
-             self.response.clear()
-             self.response.set_status(400, status_message)
-             obj['status'] = self.response.status
+            self.response.clear()
+            self.response.set_status(400, status_message)
+            obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
         return
 
@@ -105,32 +116,27 @@ class ReplyHandler(webapp2.RequestHandler):
 
     #https://cloud.google.com/appengine/docs/python/tools/webapp/requesthandlerclass
     def put(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
         print(args)
         print(kwargs)
         obj={}
         if not kwargs or kwargs is None or 'repid' not in kwargs: #GET /reply or /reply/
             self.response.clear()
-            self.response.set_status(400, status_message)
+            self.response.set_status(400, '- Invalid. No reply id provided.')
             obj['status'] = self.response.status
         else: #reply id is in kwarg
             match = next((er for er in self.existing_replies if er['key']==int(kwargs['repid'])), None) #
             if match is not None: #entity exists in database
-                print('do the mod')
                 properties = {
                     'username': self.request.get('username'), #required
                     'comment': self.request.get('comment'),
                     'review': self.request.get('review'),
-                    'provider': self.request.get('provider_key'), #required (int id)
+                    'provider': self.request.get('provider'), #required (int id)
                   }
-                print(properties)
                 status_message = self.validate_input(properties)
-                print(status_message)
                 obj={}
                 if 'Invalid' not in status_message: #check for empty or invalid fields
-                    #no parent key needed as each Review entity should be in its own entity group
-                    #construct key
-                    e = ndb.Key(E.Reply, int(kwargs['repid'])).get()
+                    pk = ndb.Key(E.Review, int(match['review']))
+                    e = E.Reply.get_by_id(int(kwargs['repid']), parent=pk)
                     e.populate(**properties)
                     e.put()
                     obj = e.to_dict()
@@ -149,22 +155,20 @@ class ReplyHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(obj))
         return
 
+
     def delete(self, *args, **kwargs):
-        self.response.headers['Content-Type'] = 'application/json'
-        print(args)
-        print(kwargs)
         obj={}
         if not kwargs or kwargs is None or 'repid' not in kwargs: #GET /reply or /reply/
             self.response.clear()
-            self.response.set_status(400, status_message)
+            self.response.set_status(400, '- Invalid. No reply id provided.')
             obj['status'] = self.response.status
         else: #reply id is in kwarg
             match = next((er for er in self.existing_replies if er['key']==int(kwargs['repid'])), None) #
             if match is not None: #entity exists in database
-                obj={}
-                k = ndb.Key(E.Reply, int(kwargs['repid']))
-                k.delete()
-                self.response.set_status(200, '- Delete successful.')
+                print(match)
+                pk=ndb.Key(E.Review, int(match['review'])) #must retrieve parent in order to delete
+                E.Reply.get_by_id(int(kwargs['repid']),parent=pk).key.delete()
+                self.response.set_status(200, '- Delete reply successful.')
                 obj['status'] = self.response.status
             else:
                  self.response.clear()
