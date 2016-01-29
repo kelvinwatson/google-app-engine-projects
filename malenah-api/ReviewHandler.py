@@ -19,14 +19,15 @@ class ReviewHandler(webapp2.RequestHandler):
 
         obj={}
         if not kwargs or kwargs is None: #GET /review or /review/
-            if args[0]:
-                if args[0]=='review':
-                    if self.existing_reviews:
-                        self.response.write(json.dumps(self.existing_reviews))
-                    else: #self.existing_reviews is an empty list
-                        self.response.set_status(200, '- OK. No reviews currently in database. ')
-                        obj['status'] = self.response.status
-                        self.response.write(json.dumps(obj))
+            if args:
+                if args[0]:
+                    if args[0]=='review':
+                        if self.existing_reviews:
+                            self.response.write(json.dumps(self.existing_reviews))
+                        else: #self.existing_reviews is an empty list
+                            self.error_status(200, '- OK. No reviews currently in database.')
+            else:
+                self.error_status(200, '- OK. No reviews currently in database.')
         else: #GET /provider/pid/review or /provider/pid/review
             if 'revid' in kwargs: #review/revid or review/revid/ or provider/pid/review/revid
                 print('revid!')
@@ -34,10 +35,7 @@ class ReviewHandler(webapp2.RequestHandler):
                 if review_match is not None:
                     self.response.write(json.dumps(review_match))
                 else:
-                    self.response.clear()
-                    self.response.set_status(400, '- Invalid')
-                    obj['status'] = self.response.status
-                    self.response.write(json.dumps(obj))
+                    self.error_status(400, '- No match for review id.')
             elif 'pid' in kwargs: #GET /provider/pid/review or /provider/pid/review/
                 #search the existing_providers for a match to the provider ID provided
                 print('pid!')
@@ -47,16 +45,20 @@ class ReviewHandler(webapp2.RequestHandler):
                     if review_matches:
                         self.response.write(json.dumps(review_matches))
                     else:
-                        self.response.clear()
-                        self.response.set_status(400, '- Invalid. No matches for the provided review id. ')
-                        obj['status'] = self.response.status
-                        self.response.write(json.dumps(obj))
+                        self.error_status(400, '- Invalid. No matches for the provided review id.')
                 else: #no provider match
-                    self.response.clear()
-                    self.response.set_status(400, '- Invalid. No matches for the provided provider id. ')
-                    obj['status'] = self.response.status
-                    self.response.write(json.dumps(obj))
+                    self.error_status(400, '- Invalid. No matches for the provided provider id.')
         return
+
+    def error_status(self, code, msg):
+        '''
+        Clears the response attribute and prints error messages in JSON
+        '''
+        obj={}
+        self.response.clear()
+        self.response.set_status(code, msg)
+        obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
 
     def post(self, *args, **kwargs):
         properties = {
@@ -163,9 +165,9 @@ class ReviewHandler(webapp2.RequestHandler):
                     obj['status'] = self.response.status
                     self.expand_provider(obj) #for json output
                 else:
-                     self.response.clear()
-                     self.response.set_status(400, status_message)
-                     obj['status'] = self.response.status
+                    self.response.clear()
+                    self.response.set_status(400, status_message)
+                    obj['status'] = self.response.status
             else:
                  self.response.clear()
                  self.response.set_status(400, '- Invalid input. Unable to update entity. No match for review id.')
@@ -188,9 +190,9 @@ class ReviewHandler(webapp2.RequestHandler):
                 self.response.set_status(200, '- Delete review successful.')
                 obj['status'] = self.response.status
             else:
-                 self.response.clear()
-                 self.response.set_status(400, '- Invalid input. Unable to delete entity. No match for review id.')
-                 obj['status'] = self.response.status
+                self.response.clear()
+                self.response.set_status(400, '- Invalid input. Unable to delete entity. No match for review id.')
+                obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
         return
 

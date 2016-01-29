@@ -10,23 +10,27 @@ class ReplyHandler(webapp2.RequestHandler):
         self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
         self.existing_replies = [{'username':qe.username,'comment':qe.comment,'review':qe.review.id(),'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Reply.query()]
         self.response.headers['Content-Type'] = 'application/json'
-        #print(self.existing_replies)
 
 
     def get(self, *args, **kwargs):
         obj={}
         if not kwargs or kwargs is None: #GET /reply or /reply/
-            if args[0]:
-                if args[0]=='reply':
-                    if self.existing_replies:
-                        self.response.write(json.dumps(self.existing_replies))
-                    else: #self.existing_replies is an empty list
-                        self.response.set_status(200, '- OK. No replies currently in database. ')
-                        obj['status'] = self.response.status
-                        self.response.write(json.dumps(obj))
+            if args:
+                if args[0]:
+                    if args[0]=='reply':
+                        if self.existing_replies:
+                            self.response.write(json.dumps(self.existing_replies))
+                        else: #self.existing_replies is an empty list
+                            self.error_status(200, '- OK. No replies currently in database.')
+            else:
+                self.error_status(200, '- OK. No replies currently in database.')
         else: #GET /provider/pid or /provider/pid (print only the requested provider)
             if 'repid' in kwargs:
-                print('there is a repid so only show that reply')
+                match = next((er for er in self.existing_replies if er['key']==int(kwargs['repid'])),None)
+                if match is not None:
+                    self.response.write(json.dumps(match))
+                else:
+                    self.error_status(400, '- No match for reply id.')
             elif 'revid' in kwargs:
                 print('there is a revid so show all replies to that review'+str(int(kwargs['revid'])))
                 #perform ancestory query
@@ -42,6 +46,17 @@ class ReplyHandler(webapp2.RequestHandler):
                     }
                     replies.append(obj)
                 self.response.write(json.dumps(replies))
+        return
+
+    def error_status(self, code, msg):
+        '''
+        Clears the response attribute and prints error messages in JSON
+        '''
+        obj={}
+        self.response.clear()
+        self.response.set_status(code, msg)
+        obj['status'] = self.response.status
+        self.response.write(json.dumps(obj))
 
     def post(self, *args, **kwargs):
         properties = {

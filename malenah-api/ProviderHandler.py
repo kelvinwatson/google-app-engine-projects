@@ -25,25 +25,24 @@ class ProviderHandler(webapp2.RequestHandler):
             else: #datastore is empty
                 self.error_status(200, '- OK. No providers currently in database.')
         else: #GET /provider/pid or /provider/pid (print only the requested provider)
-            print('kwarg!')
             if kwargs['pid']:
                 #search the existing_providers for a match to the provider ID provided
                 match = next((ep for ep in self.existing_providers if ep['key']==int(kwargs['pid'])), None) #find the duplicate dictionary
                 if match:
                     self.response.write(json.dumps(match))
                 else:
-                    self.error_status(200, '- OK. No providers matching the provided provider id. ')
+                    self.error_status(400, '- OK. No providers matching the provided provider id. ')
             else:
-                self.error_status(200, '- OK. No providers matching the provided provider id. ')
+                self.error_status(400, '- OK. No providers matching the provided provider id. ')
         return
 
     def error_status(self, code, msg):
         '''
-        Prints status messages in JSON
+        Clears the response attribute and prints error messages in JSON
         '''
         obj={}
         self.response.clear()
-        self.response.set_status(200, msg)
+        self.response.set_status(code, msg)
         obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
 

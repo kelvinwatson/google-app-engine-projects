@@ -18,7 +18,6 @@ config = {
     'M-P': 'malenah-providers'
     }
 
-
 routes = [
     webapp2.Route(r'/<:specialization>/<sid:[0-9]+><:/?>', handler=S.SpecializationHandler, name='specialization'),
     webapp2.Route(r'/<:specialization><:/?>', handler=S.SpecializationHandler, name='specialization-list'),

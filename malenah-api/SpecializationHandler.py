@@ -30,27 +30,27 @@ class SpecializationHandler(webapp2.RequestHandler):
                 if match:
                     self.response.write(json.dumps(match))
                 else:
-                    self.error_status(200, '- OK. No specializations matching the provided specialization id. ')
+                    self.error_status(400, '- OK. No specializations matching the provided specialization id. ')
             else:
-                self.error_status(200, '- OK. No specializations matching the provided specialization id. ')
+                self.error_status(400, '- OK. No specializations matching the provided specialization id. ')
         return
 
     def error_status(self, code, msg):
         '''
-        Prints status messages in JSON
+        Clears the response attribute and prints error messages in JSON
         '''
         obj={}
         self.response.clear()
-        self.response.set_status(200, msg)
+        self.response.set_status(code, msg)
         obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
 
 
     def post(self, *args, **kwargs): #add a specialization(s)
         if not self.request.get_all('specializations[]') or self.request.get_all('specializations[]') is None or self.request.get_all('specializations[]')=='':
-            self.response.set_status(400, '- Invalid input. No specializations[] provided.')
-            self.response.write(self.response.status)
+            self.error_status(400, '- Invalid input. Empty specializations[] field(s).')
         else:
+            print('or here?')
             self.response.set_status(200, '- OK.')
             obj = {}
             obj['status'] = self.response.status
