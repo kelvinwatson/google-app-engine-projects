@@ -7,11 +7,25 @@ class Model(ndb.Model):
         return d
 
 class Provider(Model):
+    category = ndb.StringProperty(required=True)
+    icon_url = ndb.StringProperty()
+
     first_name = ndb.StringProperty(required=True)
     last_name = ndb.StringProperty(required=True)
     designation = ndb.StringProperty(required=True)
-    organization = ndb.StringProperty()
     specializations = ndb.KeyProperty(repeated=True)
+
+    organization = ndb.StringProperty()
+    building = ndb.StringProperty()
+    street = ndb.StringProperty()
+    city = ndb.StringProperty()
+    state = ndb.StringProperty()
+    country = ndb.StringProperty()
+    zipcode = ndb.StringProperty()
+    notes = ndb.StringProperty()
+    latitude = ndb.FloatProperty()
+    longitude = ndb.FloatProperty()
+
     phone = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
     website = ndb.StringProperty()
@@ -31,4 +45,7 @@ class Reply(Model):
     provider = ndb.KeyProperty(kind=Provider, required=True)
 
 class Specialization(Model):
+    name = ndb.StringProperty(required=True)
+
+class Category(Model):
     name = ndb.StringProperty(required=True)

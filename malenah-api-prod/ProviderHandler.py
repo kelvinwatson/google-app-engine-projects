@@ -7,7 +7,35 @@ class ProviderHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
-        self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':[k.id() for k in qe.specializations],'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
+        self.existing_categories = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
+        #self.existing_providers = [{'category':qe.category,'icon_url':qe.icon_url, 'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':[k.id() for k in qe.specializations],'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
+        self.existing_providers = []
+        obj={}
+        for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P'))):
+            obj = {
+                'category':qe.category,
+                'icon_url':qe.icon_url,
+                'first_name':qe.first_name,
+                'last_name':qe.last_name,
+                'designation':qe.designation,
+                'organization':qe.organization,
+                'specializations':[k.id() for k in qe.specializations],
+                'building': qe.building,
+                'street': qe.street,
+                'city': qe.city,
+                'state': qe.state,
+                'country': qe.country,
+                'zipcode': qe.zipcode,
+                'notes': qe.notes,
+                'latitude': qe.latitude,
+                'longitude': qe.longitude,
+                'phone':qe.phone,
+                'email':qe.email,
+                'website':qe.website,
+                'accepting_new_patients':qe.accepting_new_patients,
+                'key':qe.key.id()
+                }
+            self.existing_providers.append(obj)
         self.response.headers['Content-Type'] = 'application/json'
         print(self.existing_providers)
 
@@ -46,18 +74,31 @@ class ProviderHandler(webapp2.RequestHandler):
         obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
 
-
     def post(self, *args, **kwargs):
         '''
         Adds a Provider entity to the NDB datastore
         '''
         #Construct properties
         properties = {
+            'category': self.request.get('category'),
+            'icon_url': self.request.get('icon_url'),
+
             'first_name': self.request.get('first_name'),
             'last_name': self.request.get('last_name'),
             'designation': self.request.get('designation'),
             'organization': self.request.get('organization'),
-            'specializations': self.request.get('specializations[]'),
+            'specializations': None,
+
+            'building': self.request.get('building'),
+            'street': self.request.get('street'),
+            'city': self.request.get('city'),
+            'state': self.request.get('state'),
+            'country': self.request.get('country'),
+            'zipcode': self.request.get('zipcode'),
+            'notes': self.request.get('notes'),
+            'latitude': float(self.request.get('latitude')),
+            'longitude': float(self.request.get('longitude')),
+
             'phone': self.request.get('phone'),
             'email': self.request.get('email'),
             'website': self.request.get('website'),
@@ -114,6 +155,29 @@ class ProviderHandler(webapp2.RequestHandler):
                 k = ndb.Key(E.Specialization, sid_int)
                 specializations.append(k)
         obj['specializations'] = specializations #save the converted keys
+
+        #category = None
+        # cid_int = None
+        # try:
+        #     cid_int = int(self.request.get('category'))
+        # except ValueError:
+        #     return '- Invalid input: category must be an integer id.'
+        # if not any(ec['key']==cid_int for ec in self.existing_categories):
+        #     return '- Invalid input: no category with provided id.'
+        # else:
+        #     k = ndb.Key(E.Category, cid_int)
+        # obj['category'] = k
+
+        lat = lng = None
+
+        try:
+            lat = float(obj['latitude'])
+            lng = float(obj['longitude'])
+        except ValueError:
+            return '- Invalid input: latitude and longitude must be floating point numbers.'
+        obj['latitude'] = lat
+        obj['longitude'] = lng
+
         return '- OK'
 
     def validate_input_put(self, obj):

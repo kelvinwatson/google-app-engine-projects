@@ -1,0 +1,18 @@
+application: malenah-api-prod
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+# Handlers define how to route requests to your application.
+#lines after url must be indented TWO SPACES
+handlers:
+- url: /.*
+  script: main.application
+- url: .*  # This regex directs all routes to main.app
+  script: main.application
+
+#App Engine SDK libs
+libraries:
+- name: webapp2
+  version: latest
