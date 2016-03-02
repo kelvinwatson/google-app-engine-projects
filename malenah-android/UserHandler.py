@@ -1,12 +1,18 @@
 import Entities as E
 import json
+import sys
+import urllib2
 import webapp2
+from oauth2client import client, crypt
 from google.appengine.ext import ndb
 
 class UserHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
+        self.ANDROID_CLIENT_ID='244305224411-3n7ir9uq20tfjv9n9ju2e3bhs40nu3uf.apps.googleusercontent.com'
+        self.WEB_CLIENT_ID='244305224411-kcc9c6a3t5gbt265h3clkipddi4imjfs.apps.googleusercontent.com'
+        self.CLIENT_ID='244305224411-kcc9c6a3t5gbt265h3clkipddi4imjfs.apps.googleusercontent.com'
+
         self.initialize(request,response)
-        print('init')
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
 
         self.existing_providers = []
@@ -146,35 +152,124 @@ class UserHandler(webapp2.RequestHandler):
         obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
 
+    def verify_token(self, url, token):
+        #print(token)
+        response = idinfo = userid = None
+        try:
+            response = urllib2.urlopen(url+token).read()
+            idinfo = client.verify_id_token(token, self.CLIENT_ID)
+            # If multiple clients access the backend server:
+            #print(idinfo)
+            if idinfo['aud'] not in [self.ANDROID_CLIENT_ID, self.WEB_CLIENT_ID]:
+                 raise crypt.AppIdentityError("Unrecognized client.")
+            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                raise crypt.AppIdentityError("Wrong issuer.")
+            #print(response)
+            userid = idinfo['sub']
+            #if idinfo['hd'] != APPS_DOMAIN_NAME:
+            #    raise crypt.AppIdentityError("Wrong hosted domain.")
+        except Exception as e:
+            return None
+            #print('invalid token')
+            self.error_status(400,'Invalid token.')
+        print('token verified OK!')
+        #print(userid)
+        return userid
+
+    def check_user(self, userid, name, email):
+        #print(self.existing_users)
+        print(userid) #user_id's are stored as strings in datastore
+        match = next((eu for eu in self.existing_users if eu['user_id']==userid), None) #find the duplicate dictionary
+        if match:
+            print('----user does exist!!!---')
+            self.response.write(json.dumps(match))
+        else:
+            print('----user does not currently exist, adding...---')
+            properties = {
+                'user_id': userid,
+                'email': email,
+                'name': name,
+                'favorites': [],
+              }
+            self.store_user(properties)
+            #self.error_status(400, '- OK. No user matching the provided user id. ')
+
+    def store_user(self, properties):
+        parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
+        e = E.User(parent=parent_key)
+        e.populate(**properties)
+        e.put()
+        obj = e.to_dict()
+        self.response.set_status(200, '- user added to database')
+        obj['status'] = self.response.status
+        print('=========user stored!==========')
+        print(obj)
+        self.response.write(json.dumps(obj))
+
+
     def post(self, *args, **kwargs):
         '''
-        Adds a User entity to the NDB datastore
+        Handles all post requests: Adds a User entity to the NDB datastore, Validates Token
         '''
+
+        #Verify token and store new user
+        if self.request.get('id_token'):
+            url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
+            userid = self.verify_token(url, self.request.get('id_token'))
+            if userid is not None:
+                obj={}
+                self.response.set_status(200,'- token verified, user logged in')
+                obj['userid']=userid
+                obj['status']=self.response.status
+                #TODO: method to check if user is in datastore (store if not)
+                print('\n-----token verified but does the user exist???-----')
+                name=self.request.get('name')
+                email=self.request.get('email')
+                exists_user = self.check_user(userid,name,email)
+                #TODO: method to return favorites
+                #self.response.write(json.dumps(obj))
+            else:
+                #TODO: return error
+                print('invalid token')
+                self.error_status(400,'Invalid token.')
+            return
+
+        #User exists, append favorites to existing user
+
+        #Construct properties
+
+        #Find existing user record
+        match = next((eu for eu in self.existing_users if eu['user_id']==self.request.get('user_id')), None) #find the duplicate dictionary
+        print('\n\n\nmatch!!!')
+        #print(match)
         #Construct properties
         properties = {
             'user_id': self.request.get('user_id'),
             'email': self.request.get('email'),
             'name': self.request.get('name'),
-            'favorites': None,
-          }
-        #print(properties)
+            'favorites':[ndb.Key(E.Provider,f['key']) for f in match['favorites']]
+          } #retrieve the current favorites(provider keys)
+        print('printing current properties')
+        print(properties)
 
         #Santize input
         status_message = self.validate_input_post(properties)
-        #print(status_message)
+
+        #Add favorites to properties
 
         #Store entity, or reject invalid input
         obj={}
         if 'Invalid' not in status_message: #check for empty fields
             parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
             e = E.User(parent=parent_key)
+            #print(properties)
             e.populate(**properties)
             e.put()
             obj = e.to_dict()
             self.response.set_status(200, status_message)
             obj['status'] = self.response.status
             self.expand_favorites(obj)
-            print(obj)
+            #print(obj)
         else:
             self.response.clear()
             self.response.set_status(400, status_message)
@@ -217,12 +312,13 @@ class UserHandler(webapp2.RequestHandler):
         '''
         Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary
         '''
+
         if not obj['user_id'] or obj['user_id'] is None or obj['user_id']=='':
             return '- Invalid input: missing user id.'
 
-        #reject duplicate providers
-        if any(eu['user_id']==obj['user_id'] for eu in self.existing_users):
-            return '- Invalid input: user already exists in database.'
+        #reject duplicate users
+        #if any(eu['user_id']==obj['user_id'] for eu in self.existing_users):
+        #    return '- Invalid input: user already exists in database.'
 
         #sanitize favorites:
         favorites = []
@@ -236,7 +332,11 @@ class UserHandler(webapp2.RequestHandler):
             if not any(ep['key']==fid_int for ep in self.existing_providers):
                 return '- Invalid input: no provider with provided id.'
             else:
-                k = ndb.Key(E.User, fid_int)
+                k = ndb.Key(E.Provider, fid_int)
                 favorites.append(k)
-        obj['favorites'] = favorites #save the converted keys
+        print('printing f')
+        for f in favorites:
+            if not any(f==fp for fp in obj['favorites']): #only add the favorite[] if not already in user's favorites array
+                obj['favorites'].append(f)
+            print (f)
         return '- OK'
