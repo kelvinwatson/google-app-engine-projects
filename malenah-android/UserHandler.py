@@ -241,6 +241,7 @@ class UserHandler(webapp2.RequestHandler):
         #Find existing user record
         match = next((eu for eu in self.existing_users if eu['user_id']==self.request.get('user_id')), None) #find the duplicate dictionary
         print('\n\n\nmatch!!!')
+        print(match)
         #print(match)
         #Construct properties
         properties = {
@@ -260,8 +261,17 @@ class UserHandler(webapp2.RequestHandler):
         #Store entity, or reject invalid input
         obj={}
         if 'Invalid' not in status_message: #check for empty fields
-            parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
-            e = E.User(parent=parent_key)
+            print('==OK PRINTING ALL USERS IN DB==')
+            for qu in E.User.query(ancestor=ndb.Key(E.User, self.app.config.get('M-U'))):
+                print(qu)
+            k=ndb.Key(E.User,int(match['key']),parent=ndb.Key(E.User, self.app.config.get('M-U'))) #get key from id
+            print('==printing key==')
+            print(k)
+            print('==printing entity==')
+            e=k.get() # get entity
+            print(e)
+            #parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
+            #e = E.User(parent=parent_key)
             #print(properties)
             e.populate(**properties)
             e.put()
