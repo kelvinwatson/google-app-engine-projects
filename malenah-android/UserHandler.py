@@ -233,59 +233,105 @@ class UserHandler(webapp2.RequestHandler):
                 print('invalid token')
                 self.error_status(400,'Invalid token.')
             return
-
-        #User exists, append favorites to existing user
-
-        #Construct properties
-
-        #Find existing user record
-        match = next((eu for eu in self.existing_users if eu['user_id']==self.request.get('user_id')), None) #find the duplicate dictionary
-        print('\n\n\nmatch!!!')
-        print(match)
-        #print(match)
-        #Construct properties
-        properties = {
-            'user_id': self.request.get('user_id'),
-            'email': self.request.get('email'),
-            'name': self.request.get('name'),
-            'favorites':[ndb.Key(E.Provider,f['key']) for f in match['favorites']]
-          } #retrieve the current favorites(provider keys)
-        print('printing current properties')
-        print(properties)
-
-        #Santize input
-        status_message = self.validate_input_post(properties)
-
-        #Add favorites to properties
-
-        #Store entity, or reject invalid input
-        obj={}
-        if 'Invalid' not in status_message: #check for empty fields
-            print('==OK PRINTING ALL USERS IN DB==')
-            for qu in E.User.query(ancestor=ndb.Key(E.User, self.app.config.get('M-U'))):
-                print(qu)
-            k=ndb.Key(E.User,int(match['key']),parent=ndb.Key(E.User, self.app.config.get('M-U'))) #get key from id
-            print('==printing key==')
-            print(k)
-            print('==printing entity==')
-            e=k.get() # get entity
-            print(e)
-            #parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
-            #e = E.User(parent=parent_key)
-            #print(properties)
-            e.populate(**properties)
-            e.put()
-            obj = e.to_dict()
-            self.response.set_status(200, status_message)
-            obj['status'] = self.response.status
-            self.expand_favorites(obj)
-            #print(obj)
-        else:
-            self.response.clear()
-            self.response.set_status(400, status_message)
-            obj['status'] = self.response.status
+        elif self.request.get('post_action'):         #User exists, append favorites to existing user
+            #Find existing user record
+            match = next((eu for eu in self.existing_users if eu['user_id']==self.request.get('user_id')), None) #find the duplicate dictionary
+            print('\n\n\nmatch!!!')
+            print(match)
+            if self.request.get('post_action') == 'add_favorite':
+                print('===add_favorite===');
+                properties = {
+                    'user_id': match['user_id'],
+                    'email': match['email'],
+                    'name': match['name'],
+                    'favorites':[ndb.Key(E.Provider,f['key']) for f in match['favorites']]
+                }
+                print(properties)
+                status_message = self.validate_input_post(properties) #append favorite to properties
+                k=ndb.Key(E.User,int(match['key']),parent=ndb.Key(E.User, self.app.config.get('M-U'))) #get key from id
+                print('==printing key==')
+                print(k)
+                print('==printing entity==')
+                e=k.get() # get entity
+                print(e)
+                e.populate(**properties)
+                e.put()
+                obj = e.to_dict()
+                self.response.set_status(200, status_message + ': favorites added successfully')
+                obj['status'] = self.response.status
+                self.expand_favorites(obj)
+            elif self.request.get('post_action') == 'remove_favorite':
+                print('===remove_favorite===');
+                print("=prev faves=")
+                print(match['favorites'])
+                new_favorites=[ndb.Key(E.Provider,f['key']) for f in match['favorites'] if(f.get('key')!=int(self.request.get('favorites[]')))]
+                print("=new faves=")
+                print(new_favorites)
+                properties = {
+                    'user_id': match['user_id'],
+                    'email': match['email'],
+                    'name': match['name'],
+                    'favorites':new_favorites
+                }
+                k=ndb.Key(E.User,int(match['key']),parent=ndb.Key(E.User, self.app.config.get('M-U'))) #get key from id
+                print('==rem printing key==')
+                print(k)
+                print('==rem printing entity==')
+                e=k.get() # get entity
+                print(e)
+                e.populate(**properties)
+                e.put()
+                obj = e.to_dict()
+                self.response.set_status(200, '-OK: favorite removed successfully')
+                obj['status'] = self.response.status
+                self.expand_favorites(obj)
+            elif self.request.get('post_action') == 'edit_user':
+                print('===edit_user===');
         self.response.write(json.dumps(obj))
         return
+        # #Construct properties
+        # properties = {
+        #     'user_id': self.request.get('user_id'),
+        #     'email': self.request.get('email'),
+        #     'name': self.request.get('name'),
+        #     'favorites':[ndb.Key(E.Provider,f['key']) for f in match['favorites']]
+        #   } #retrieve the current favorites(provider keys)
+        # print('printing current properties')
+        # print(properties)
+        #
+        # #Santize input
+        # status_message = self.validate_input_post(properties)
+        #
+        # #Add favorites to properties
+        #
+        # #Store entity, or reject invalid input
+        # obj={}
+        # if 'Invalid' not in status_message: #check for empty fields
+        #     print('==OK PRINTING ALL USERS IN DB==')
+        #     for qu in E.User.query(ancestor=ndb.Key(E.User, self.app.config.get('M-U'))):
+        #         print(qu)
+        #     k=ndb.Key(E.User,int(match['key']),parent=ndb.Key(E.User, self.app.config.get('M-U'))) #get key from id
+        #     print('==printing key==')
+        #     print(k)
+        #     print('==printing entity==')
+        #     e=k.get() # get entity
+        #     print(e)
+        #     #parent_key = ndb.Key(E.User, self.app.config.get('M-U'))
+        #     #e = E.User(parent=parent_key)
+        #     #print(properties)
+        #     e.populate(**properties)
+        #     e.put()
+        #     obj = e.to_dict()
+        #     self.response.set_status(200, status_message)
+        #     obj['status'] = self.response.status
+        #     self.expand_favorites(obj)
+        #     #print(obj)
+        # else:
+        #     self.response.clear()
+        #     self.response.set_status(400, status_message)
+        #     obj['status'] = self.response.status
+        # self.response.write(json.dumps(obj))
+        # return
 
     def expand_favorites(self, obj):
         favorites_list = []
