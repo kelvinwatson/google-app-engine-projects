@@ -4,12 +4,10 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
-# Handlers define how to route requests to your application.
-#lines after url must be indented TWO SPACES
 handlers:
 - url: /.*
   script: main.application
-- url: .*  # This regex directs all routes to main.app
+- url: .*  # directs all routes to main.app
   script: main.application
 
 #App Engine SDK libs

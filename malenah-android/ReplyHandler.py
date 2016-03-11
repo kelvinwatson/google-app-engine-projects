@@ -5,6 +5,7 @@ from google.appengine.ext import ndb
 
 class ReplyHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
+        """Constructor"""
         self.initialize(request,response)
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':qe.specializations,'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':qe.replies,'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
@@ -13,6 +14,7 @@ class ReplyHandler(webapp2.RequestHandler):
 
 
     def get(self, *args, **kwargs):
+        """Retrieves Reply entities from NDB datastore"""
         obj={}
         if not kwargs or kwargs is None: #GET /reply or /reply/
             if args:
@@ -31,12 +33,9 @@ class ReplyHandler(webapp2.RequestHandler):
                 else:
                     self.error_status(400, '- No match for reply id.')
             elif 'revid' in kwargs:
-                print('there is a revid so show all replies to that review'+str(int(kwargs['revid'])))
-                #perform ancestory query
-                qrep=E.Reply.query(ancestor=ndb.Key(E.Review, int(kwargs['revid'])))
+                qrep=E.Reply.query(ancestor=ndb.Key(E.Review, int(kwargs['revid']))) #perform ancestor query
                 replies = []
                 for q in qrep:
-                    print(q)
                     obj={
                         'username': q.username,
                         'comment': q.comment,
@@ -48,9 +47,7 @@ class ReplyHandler(webapp2.RequestHandler):
         return
 
     def error_status(self, code, msg):
-        '''
-        Clears the response attribute and prints error messages in JSON
-        '''
+        """Clears the response attribute and prints error messages in JSON"""
         obj={}
         self.response.clear()
         self.response.set_status(code, msg)
@@ -58,6 +55,7 @@ class ReplyHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(obj))
 
     def post(self, *args, **kwargs):
+        """Adds Reply entities to NDB datastore"""
         properties = {
             'username': self.request.get('username'), #required
             'comment': self.request.get('comment'),
@@ -85,19 +83,17 @@ class ReplyHandler(webapp2.RequestHandler):
         return
 
     def update_review(self, review_key, reply_key):
+        """Updates a Review entity by adding a Reply entity"""
         review_entity = review_key.get()
         review_entity.replies.append(reply_key)
         review_entity.put()
 
     def validate_input(self, obj):
-        '''
-        Checks for empty properties, and invalid review
-        '''
+        """Checks for empty properties, and invalid review"""
         if not obj['username'] or obj['username'] is None or obj['username']=='' \
             or not obj['review'] or obj['review'] is None or obj['review']=='' \
             or not obj['provider'] or obj['provider'] is None or obj['provider']=='':
             return '- Invalid input: missing properties.'
-
         #check that the review id exists in database
         try:
             revid_int = int(obj['review'])
@@ -106,7 +102,6 @@ class ReplyHandler(webapp2.RequestHandler):
         if not any(er['key']==revid_int for er in self.existing_reviews):
             return '- Invalid input: no match for Review id. Please double check Provider id.'
         obj['review'] =  ndb.Key(E.Review,revid_int)
-
         #check that provider_key exists in database
         try:
             pid_int = int(obj['provider'])
@@ -118,12 +113,14 @@ class ReplyHandler(webapp2.RequestHandler):
         return '- OK'
 
     def expand_review(self, obj):
+        """Expands a Review entity for output"""
         o={}
         match = next((er for er in self.existing_reviews if er['key']==obj['review'].id()), None) #find the duplicate dictionary
         o['key']=match['key']
         obj['review'] = o
 
     def expand_provider(self, obj):
+        """Expands a Provider entity for output"""
         o={}
         match = next((ep for ep in self.existing_providers if ep['key']==obj['provider'].id()), None) #find the duplicate dictionary
         o['first_name']=match['first_name']
@@ -133,6 +130,7 @@ class ReplyHandler(webapp2.RequestHandler):
 
     #https://cloud.google.com/appengine/docs/python/tools/webapp/requesthandlerclass
     def put(self, *args, **kwargs):
+        """Updates a Reply entity in the NDB datastore"""
         obj={}
         if not kwargs or kwargs is None or 'repid' not in kwargs: #GET /reply or /reply/
             self.response.clear()
@@ -172,6 +170,7 @@ class ReplyHandler(webapp2.RequestHandler):
 
 
     def delete(self, *args, **kwargs):
+        """Deletes a Reply entity from the NDB datastore"""
         obj={}
         if not kwargs or kwargs is None or 'repid' not in kwargs: #GET /reply or /reply/
             self.response.clear()

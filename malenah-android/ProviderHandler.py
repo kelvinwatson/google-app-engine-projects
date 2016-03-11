@@ -8,7 +8,6 @@ class ProviderHandler(webapp2.RequestHandler):
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         self.existing_categories = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
-        #self.existing_providers = [{'category':qe.category,'icon_url':qe.icon_url, 'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':[k.id() for k in qe.specializations],'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.existing_providers = []
         obj={}
         for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P'))):
@@ -47,12 +46,9 @@ class ProviderHandler(webapp2.RequestHandler):
                 }
             self.existing_providers.append(obj)
         self.response.headers['Content-Type'] = 'application/json'
-        print(self.existing_providers)
 
     def get(self, *args, **kwargs):
-        '''
-        Retrieves Provider entities based on URI
-        '''
+        """Retrieves Provider entities"""
         if not kwargs or kwargs is None: #GET /provider or /provider/
             if args:
                 if args[0]:
@@ -75,9 +71,7 @@ class ProviderHandler(webapp2.RequestHandler):
         return
 
     def error_status(self, code, msg):
-        '''
-        Clears the response attribute and prints error messages in JSON
-        '''
+        """Clears the response attribute and prints error messages in JSON"""
         obj={}
         self.response.clear()
         self.response.set_status(code, msg)
@@ -85,20 +79,16 @@ class ProviderHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(obj))
 
     def post(self, *args, **kwargs):
-        '''
-        Adds a Provider entity to the NDB datastore
-        '''
+        """Adds a Provider entity to the NDB datastore"""
         #Construct properties
         properties = {
             'category': self.request.get('category'),
             'icon_url': self.request.get('icon_url'),
-
             'first_name': self.request.get('first_name'),
             'last_name': self.request.get('last_name'),
             'designation': self.request.get('designation'),
             'organization': self.request.get('organization'),
             'specializations': None,
-
             'building': self.request.get('building'),
             'street': self.request.get('street'),
             'city': self.request.get('city'),
@@ -108,14 +98,11 @@ class ProviderHandler(webapp2.RequestHandler):
             'notes': self.request.get('notes'),
             'latitude': float(self.request.get('latitude')),
             'longitude': float(self.request.get('longitude')),
-
             'phone': self.request.get('phone'),
             'email': self.request.get('email'),
             'website': self.request.get('website'),
             'accepting_new_patients': True if (self.request.get('accepting_new_patients')=="True") else False,
           }
-
-        #Santize input
         status_message = self.validate_input_post(properties)
 
         #Store entity, or reject invalid input
@@ -137,9 +124,7 @@ class ProviderHandler(webapp2.RequestHandler):
         return
 
     def validate_input_post(self, obj):
-        '''
-        Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary
-        '''
+        """Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary"""
         if not obj['first_name'] or obj['first_name'] is None or obj['first_name']=='' \
             or not obj['last_name'] or obj['last_name'] is None or obj['last_name']=='' \
             or not obj['designation'] or obj['designation'] is None or obj['designation']=='' \
@@ -164,19 +149,7 @@ class ProviderHandler(webapp2.RequestHandler):
             else:
                 k = ndb.Key(E.Specialization, sid_int)
                 specializations.append(k)
-        obj['specializations'] = specializations #save the converted keys
-
-        #category = None
-        # cid_int = None
-        # try:
-        #     cid_int = int(self.request.get('category'))
-        # except ValueError:
-        #     return '- Invalid input: category must be an integer id.'
-        # if not any(ec['key']==cid_int for ec in self.existing_categories):
-        #     return '- Invalid input: no category with provided id.'
-        # else:
-        #     k = ndb.Key(E.Category, cid_int)
-        # obj['category'] = k
+        obj['specializations'] = specializations #save  converted keys
 
         lat = lng = None
 
@@ -191,16 +164,13 @@ class ProviderHandler(webapp2.RequestHandler):
         return '- OK'
 
     def validate_input_put(self, obj):
-        '''
-        Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary
-        '''
+        """Checks for empty properties, duplicate providers, and invalid health-related specializations in a dictionary"""
         if not obj['first_name'] or obj['first_name'] is None or obj['first_name']=='' \
             or not obj['last_name'] or obj['last_name'] is None or obj['last_name']=='' \
             or not obj['designation'] or obj['designation'] is None or obj['designation']=='' \
             or not obj['phone'] or obj['phone'] is None or obj['phone']=='':
             return '- Invalid input: missing properties.'
 
-        #sanitize specializations:
         specializations = []
         for s in self.request.get_all('specializations[]'):
             sid_int = None
@@ -218,6 +188,7 @@ class ProviderHandler(webapp2.RequestHandler):
         return '- OK'
 
     def expand_specializations(self, obj):
+        """Expands specialization object to include its properties for output"""
         specializations_list = []
         for k in obj['specializations']:
             o={}
@@ -228,12 +199,13 @@ class ProviderHandler(webapp2.RequestHandler):
         obj['specializations'] = specializations_list
 
     def put(self, *args, **kwargs):
+        """Updates a Provider entity"""
         obj={}
         if not kwargs or kwargs is None or 'pid' not in kwargs: #GET /reply or /reply/
             self.response.clear()
             self.response.set_status(400, '- Invalid. No provider id provided.')
             obj['status'] = self.response.status
-        else: #reply id is in kwarg
+        else: #reply id in kwarg
             match = next((ep for ep in self.existing_providers if ep['key']==int(kwargs['pid'])), None) #
             if match is not None: #entity exists in database
                 properties = {
@@ -271,6 +243,7 @@ class ProviderHandler(webapp2.RequestHandler):
 
 
     def delete(self, *args, **kwargs):
+        """Deletes a Provider entity from the NDB datastore"""
         obj={}
         if not kwargs or kwargs is None or 'pid' not in kwargs: #GET /reply or /reply/
             self.response.clear()

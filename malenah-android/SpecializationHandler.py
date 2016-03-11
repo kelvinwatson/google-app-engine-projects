@@ -5,14 +5,13 @@ from google.appengine.ext import ndb
 
 class SpecializationHandler(webapp2.RequestHandler):
     def __init__(self,request,response):
+        """Constructor"""
         self.initialize(request,response)
         self.existing_specializations = [{'name':qe.name,'key':qe.key.id()} for qe in E.Specialization.query(ancestor=ndb.Key(E.Specialization, self.app.config.get('M-S')))]
         self.response.headers['Content-Type'] = 'application/json'
 
     def get(self, *args, **kwargs):
-        '''
-        Retrieves Specialization entities based on URI
-        '''
+        """Retrieves Specialization entities based on URI"""
         if not kwargs or kwargs is None: #GET /provider or /provider/
             if args:
                 if args[0]:
@@ -35,17 +34,15 @@ class SpecializationHandler(webapp2.RequestHandler):
         return
 
     def error_status(self, code, msg):
-        '''
-        Clears the response attribute and prints error messages in JSON
-        '''
+        """Clears the response attribute and prints error messages in JSON"""
         obj={}
         self.response.clear()
         self.response.set_status(code, msg)
         obj['status'] = self.response.status
         self.response.write(json.dumps(obj))
 
-
-    def post(self, *args, **kwargs): #add a specialization(s)
+    def post(self, *args, **kwargs):
+        """Add Specialization entities to the NDB datastore"""
         if not self.request.get_all('specializations[]') or self.request.get_all('specializations[]') is None or self.request.get_all('specializations[]')=='':
             self.error_status(400, '- Invalid input. Empty specializations[] field(s).')
         else:
@@ -59,8 +56,8 @@ class SpecializationHandler(webapp2.RequestHandler):
                 if s=='':
                     obj['invalid'] = s
                 else:
-                    if not any(es['name']==s for es in self.existing_specializations): #check if designation already in datastore
-                        parent_key = ndb.Key(E.Specialization, self.app.config.get('M-S')) #use malenah-specializtions as the key id
+                    if not any(es['name']==s for es in self.existing_specializations):
+                        parent_key = ndb.Key(E.Specialization, self.app.config.get('M-S'))
                         e = E.Specialization(parent=parent_key)
                         e.name = s
                         k=e.put()
@@ -76,8 +73,9 @@ class SpecializationHandler(webapp2.RequestHandler):
         return
 
     def put(self, *args, **kwargs):
+        """Update Specialization entities in the NDB datastore"""
         obj={}
-        if not kwargs or kwargs is None or 'sid' not in kwargs: #GET /reply or /reply/
+        if not kwargs or kwargs is None or 'sid' not in kwargs: #GET /specialization or /specialization/
             self.response.clear()
             self.response.set_status(400, '- Invalid. No specialization id provided.')
             obj['status'] = self.response.status
@@ -110,6 +108,7 @@ class SpecializationHandler(webapp2.RequestHandler):
 
 
     def delete(self, *args, **kwargs):
+        """Delete Specialization entities from the NDB datastore"""
         obj={}
         if not kwargs or kwargs is None or 'sid' not in kwargs: #GET /reply or /reply/
             self.response.clear()
@@ -130,6 +129,7 @@ class SpecializationHandler(webapp2.RequestHandler):
         return
 
     def validate_input(self,obj):
+        """Validate Specialization entity property"""
         if not obj['name'] or obj['name'] is None or obj['name']=='':
             return '- Invalid input: missing name.'
         return '- OK'

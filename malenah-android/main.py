@@ -5,10 +5,6 @@ import ReplyHandler as r
 import SpecializationHandler as S
 import UserHandler as U
 
-#format is <name:regex>
-#<provider> will match /provider/2/review/3 or /pr/2/review/3
-#<provider:provider> will match only /provider/2/review/3
-#<:provider>will match only /provider/2/review/3
 config = {
     'M-S': 'malenah-specializations',
     'M-P': 'malenah-providers',

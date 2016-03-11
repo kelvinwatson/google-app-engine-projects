@@ -7,12 +7,14 @@ DEBUG = True
 
 class ReviewHandler(webapp2.RequestHandler):
     def __init__ (self,request,response):
+        """Constructor"""
         self.initialize(request,response)
         self.existing_providers = [{'first_name':qe.first_name,'last_name':qe.last_name,'designation':qe.designation,'organization':qe.organization,'specializations':qe.specializations,'phone':qe.phone,'email':qe.email,'website':qe.website,'accepting_new_patients':qe.accepting_new_patients,'key':qe.key.id()} for qe in E.Provider.query(ancestor=ndb.Key(E.Provider, self.app.config.get('M-P')))]
         self.existing_reviews = [{'username':qe.username,'rating':qe.rating,'comment':qe.comment,'replies':[q.id() for q in qe.replies],'provider':qe.provider.id(),'key':qe.key.id()} for qe in E.Review.query()]
         self.response.headers['Content-Type'] = 'application/json'
 
     def get(self, *args, **kwargs):
+        """Retrieves Review entities from the NDB datastore"""
         obj={}
         if not kwargs or kwargs is None: #GET /review or /review/
             if args:
@@ -43,9 +45,7 @@ class ReviewHandler(webapp2.RequestHandler):
         return
 
     def error_status(self, code, msg):
-        '''
-        Clears the response attribute and prints error messages in JSON
-        '''
+        """Clears the response attribute and prints error messages in JSON"""
         obj={}
         self.response.clear()
         self.response.set_status(code, msg)
@@ -53,6 +53,7 @@ class ReviewHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(obj))
 
     def post(self, *args, **kwargs):
+        """Adds a Review entity to the NDB datastore"""
         properties = {
             'username': self.request.get('username'), #required
             'rating': self.request.get('rating'),     #required
@@ -78,15 +79,11 @@ class ReviewHandler(webapp2.RequestHandler):
         return
 
     def validate_input_post(self, obj):
-        '''
-        Checks for empty properties, and invalid health-care providers
-        '''
+        """Checks for empty properties, and invalid health-care providers"""
         if not obj['username'] or obj['username'] is None or obj['username']=='' \
             or not obj['rating'] or obj['rating'] is None or obj['rating']=='' \
             or not obj['provider'] or obj['provider'] is None or obj['provider']=='':
             return '- Invalid input: missing properties.'
-
-        #sanitize rating
         rating_float = None
         try:
             rating_float = float(obj['rating'])
@@ -95,8 +92,6 @@ class ReviewHandler(webapp2.RequestHandler):
         if rating_float < 0 or rating_float > 5.0:
             return '- Invalid input: rating must be valid number between 0 and 5.0 (e.g. 1, 2.5, 4.8).'
         obj['rating'] = rating_float
-
-        #check that provider_key exists in database
         try:
             pid_int = int(obj['provider'])
         except ValueError:
@@ -107,13 +102,9 @@ class ReviewHandler(webapp2.RequestHandler):
         return '- OK'
 
     def validate_input_put(self, obj):
-        '''
-        Checks for empty properties, and invalid health-care providers
-        '''
+        """Checks for empty and invalid properties"""
         if not obj['rating'] or obj['rating'] is None or obj['rating']=='':
             return '- Invalid input: missing rating.'
-
-        #sanitize rating
         rating_float = None
         try:
             rating_float = float(obj['rating'])
@@ -125,8 +116,9 @@ class ReviewHandler(webapp2.RequestHandler):
         return '- OK'
 
     def put(self, *args, **kwargs):
+        """Updates a Review entity in the NDB datastore"""
         obj={}
-        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /reply or /reply/
+        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /review or /review/
             self.response.clear()
             self.response.set_status(400, '- Invalid. No review id provided.')
             obj['status'] = self.response.status
@@ -134,11 +126,8 @@ class ReviewHandler(webapp2.RequestHandler):
             match = next((er for er in self.existing_reviews if er['key']==int(kwargs['revid'])), None) #
             if match is not None: #entity exists in database
                 properties = {
-                    #'username': self.request.get('username'), #cannot alter existing username
                     'rating': self.request.get('rating'),     #required
                     'comment': self.request.get('comment'),
-                    #'replies': self.request.get_all('replies[]'), cannot alter existing replies, must remain same
-                    #'provider':self.request.get('provider_key'), #cannot alter existing provider, must remain same
                   }
                 status_message = self.validate_input_put(properties)
                 obj={}
@@ -163,8 +152,9 @@ class ReviewHandler(webapp2.RequestHandler):
 
 
     def delete(self, *args, **kwargs):
+        """Deletes a Review entity from the NDB datastore"""
         obj={}
-        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /reply or /reply/
+        if not kwargs or kwargs is None or 'revid' not in kwargs: #GET /review or /review/
             self.response.clear()
             self.response.set_status(400, '-Invalid. No review id provided.')
             obj['status'] = self.response.status
@@ -182,8 +172,9 @@ class ReviewHandler(webapp2.RequestHandler):
         return
 
     def expand_provider(self, obj):
+        """Expand a Provider entity's properties for output"""
         o={}
-        match = next((ep for ep in self.existing_providers if ep['key']==obj['provider'].id()), None) #find the duplicate dictionary
+        match = next((ep for ep in self.existing_providers if ep['key']==obj['provider'].id()), None)
         o['first_name']=match['first_name']
         o['last_name']=match['last_name']
         o['key']=match['key']
